@@ -258,7 +258,7 @@
   document.getElementById('stampBtn').addEventListener('click', function() {
     var now = new Date();
     var ts = now.toLocaleDateString('en-GB', { weekday:'short', day:'2-digit', month:'short', year:'numeric' })
-      + ' · ' + now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+      + ' - ' + now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
     document.getElementById('timestamp').textContent = ts;
   });
 
@@ -296,8 +296,10 @@
       noteRows.push({ label: note.label, qty: qty, p: p });
     });
     var grandTotal = coinPence + notePence;
-    var closedBy = document.getElementById('closedBy').value || '—';
-    var timestamp = document.getElementById('timestamp').textContent || '—';
+    var closedBy = document.getElementById('closedBy').value || 'Not entered';
+    var rawTs = document.getElementById('timestamp').textContent.trim();
+    // jsPDF built-in font only supports Latin-1 — strip non-latin chars
+    var timestamp = (rawTs === '—' || rawTs === '' || rawTs === '—') ? 'Not set' : rawTs.replace(/·/g, '-').replace(/—/g, '-').replace(/–/g, '-');
 
     // HEADER
     doc.setFillColor(99, 102, 241);
@@ -418,10 +420,10 @@
     y += 7;
     doc.setTextColor(99, 102, 241);
     doc.setFontSize(9); doc.setFont('helvetica', 'bold');
-    doc.text('JeJo Barista  Aylesbury', W / 2, y, { align:'center' });
-    doc.setTextColor(150, 150, 165);
+    doc.textWithLink('JeJo Barista - Aylesbury', W / 2, y, { align:'center', url:'https://jejo8.github.io/port-folio/' });
+    doc.setTextColor(100, 120, 200);
     doc.setFontSize(7); doc.setFont('helvetica', 'normal');
-    doc.text('jejo8.github.io/port-folio', W / 2, y + 5, { align:'center' });
+    doc.textWithLink('jejo8.github.io/port-folio', W / 2, y + 5, { align:'center', url:'https://jejo8.github.io/port-folio/' });
 
     doc.save('Cash Closing ' + dateStr + '.pdf');
   });
