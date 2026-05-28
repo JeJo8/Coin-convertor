@@ -3,413 +3,127 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UK Cash Calculator — JeJo Barista Aylesbury</title>
+  <title>UK Cash Calculator</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',sans-serif;background:#f0f4f8;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 12px 0}
+    .container{background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.08);padding:24px 20px;width:100%;max-width:640px}
+    h1{font-size:1.3rem;color:#1a1a2e;margin-bottom:4px}
+    .subtitle{color:#6b7280;font-size:.82rem;margin-bottom:20px}
 
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f0f4f8;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 24px 12px 0;
-    }
+    .section-title{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#fff;padding:5px 12px;border-radius:20px;margin-bottom:12px;display:inline-block}
+    .section-title.coins{background:#6366f1}
+    .section-title.notes{background:#0ea5e9}
 
-    .container {
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-      padding: 24px 20px;
-      width: 100%;
-      max-width: 640px;
-    }
+    .table-header{display:grid;gap:8px;padding:0 4px 8px;border-bottom:2px solid #e5e7eb;margin-bottom:8px}
+    .coins-header{grid-template-columns:58px 1fr 62px 72px}
+    .notes-header{grid-template-columns:58px 1fr 72px}
+    .table-header span{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9ca3af}
 
-    h1 { font-size: 1.3rem; color: #1a1a2e; margin-bottom: 4px; }
-    .subtitle { color: #6b7280; font-size: 0.82rem; margin-bottom: 20px; }
+    .coin-grid,.notes-grid{display:grid;gap:6px;margin-bottom:20px}
+    .coin-row{display:grid;align-items:center;gap:8px;padding:6px 4px;border-radius:8px;transition:background .15s}
+    .coin-row:hover{background:#f9fafb}
+    .coin-row.active{background:#f0f4ff}
+    .note-row.active{background:#f0f9ff}
+    .coins-row{grid-template-columns:58px 1fr 62px 72px}
+    .notes-row{grid-template-columns:58px 1fr 72px}
 
-    /* Section headers */
-    .section-title {
-      font-size: 0.72rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: white;
-      padding: 5px 12px;
-      border-radius: 20px;
-      margin-bottom: 12px;
-      display: inline-block;
-    }
+    .coin-label{font-weight:700;font-size:.95rem;color:#1f2937}
+    .coin-label span{display:block;font-size:.65rem;font-weight:400;color:#9ca3af}
 
-    .section-title.coins { background: #6366f1; }
-    .section-title.notes { background: #0ea5e9; }
+    input[type=number],input[type=text]{width:100%;padding:10px 8px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:1rem;color:#111827;transition:border-color .2s;text-align:center;min-height:44px;-moz-appearance:textfield;appearance:textfield}
+    input[type=number]:focus,input[type=text]:focus{outline:none;border-color:#6366f1}
+    input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{opacity:1}
 
-    /* Table header */
-    .table-header {
-      display: grid;
-      gap: 8px;
-      padding: 0 4px 8px;
-      border-bottom: 2px solid #e5e7eb;
-      margin-bottom: 8px;
-    }
+    .coin-count{font-size:.85rem;color:#6b7280;text-align:center}
+    .coin-count.has-value{color:#374151;font-weight:600}
+    .coin-value{font-size:.9rem;font-weight:700;color:#d1d5db;text-align:right}
+    .coin-value.has-value{color:#059669}
+    .note-value.has-value{color:#0ea5e9}
 
-    .coins-header { grid-template-columns: 58px 1fr 62px 72px; }
-    .notes-header { grid-template-columns: 58px 1fr 72px; }
+    .totals-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+    .subtotal-bar{border-radius:10px;padding:12px 14px}
+    .subtotal-bar.coins{background:#f0f4ff;border:1.5px solid #c7d2fe}
+    .subtotal-bar.notes{background:#f0f9ff;border:1.5px solid #bae6fd}
+    .subtotal-label{font-size:.72rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+    .subtotal-value{font-size:1.2rem;font-weight:800}
+    .subtotal-bar.coins .subtotal-value{color:#4338ca}
+    .subtotal-bar.notes .subtotal-value{color:#0284c7}
 
-    .table-header span {
-      font-size: 0.68rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #9ca3af;
-    }
+    .total-bar{display:flex;justify-content:space-between;align-items:center;background:#1a1a2e;border-radius:10px;padding:14px 18px;margin-bottom:12px}
+    .total-label{font-weight:700;color:#e5e7eb;font-size:.9rem}
+    .total-label span{display:block;font-size:.72rem;font-weight:400;color:#6b7280}
+    .total-value{font-size:1.8rem;font-weight:800;color:#a5b4fc}
 
-    .table-header span:nth-child(2) { text-align: center; }
-    .table-header span:nth-child(3) { text-align: center; }
-    .table-header span:nth-child(4) { text-align: right; }
+    .closed-by{margin-bottom:12px}
+    .closed-label{display:block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b7280;margin-bottom:6px}
+    .closed-by input[type=text]{text-align:left;padding:11px 14px;font-weight:600}
+    .closed-by input[type=text]::placeholder{color:#d1d5db;font-weight:400}
 
-    /* Rows */
-    .coin-grid, .notes-grid { display: grid; gap: 6px; margin-bottom: 20px; }
+    .timestamp-bar{display:flex;align-items:center;gap:10px;background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:8px;padding:10px 14px;margin-bottom:12px}
+    .timestamp-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b7280;white-space:nowrap}
+    .timestamp-value{flex:1;font-size:.9rem;font-weight:600;color:#1f2937}
+    .stamp-btn{padding:6px 12px;background:#6366f1;color:#fff;border:none;border-radius:6px;font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap}
+    .stamp-btn:hover{opacity:.85}
 
-    .coin-row {
-      display: grid;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 4px;
-      border-radius: 8px;
-      transition: background 0.15s;
-    }
+    .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px}
+    button{padding:12px;border-radius:8px;font-size:.875rem;font-weight:600;cursor:pointer;border:none;min-height:44px;transition:opacity .15s}
+    button:hover{opacity:.85}
+    #exportBtn{background:#6366f1;color:#fff}
+    #resetBtn{background:#f3f4f6;color:#374151;border:1.5px solid #e5e7eb}
 
-    .coin-row:hover { background: #f9fafb; }
-    .coin-row.active { background: #f0f4ff; }
-    .note-row.active { background: #f0f9ff; }
+    .section-gap{margin-bottom:20px}
 
-    .coins-row { grid-template-columns: 58px 1fr 62px 72px; }
-    .notes-row { grid-template-columns: 58px 1fr 72px; }
+    .signature-bar{width:100%;max-width:640px;text-align:center;padding:18px 12px 24px}
+    .signature-name{font-size:1.1rem;font-weight:800;color:#4338ca;letter-spacing:.04em;text-decoration:none;border-bottom:2px solid #c7d2fe;transition:color .2s,border-color .2s}
+    .signature-name:hover{color:#6366f1;border-color:#6366f1}
+    .signature-sub{font-size:.78rem;color:#9ca3af;margin-top:2px}
 
-    .coin-label { font-weight: 700; font-size: 0.95rem; color: #1f2937; }
-    .coin-label span { display: block; font-size: 0.65rem; font-weight: 400; color: #9ca3af; }
-
-    input[type="number"] {
-      width: 100%;
-      padding: 10px 8px;
-      border: 1.5px solid #e5e7eb;
-      border-radius: 8px;
-      font-size: 1rem;
-      color: #111827;
-      transition: border-color 0.2s;
-      -moz-appearance: textfield;
-      appearance: textfield;
-      text-align: center;
-      min-height: 44px;
-    }
-
-    input[type="number"]:focus { outline: none; border-color: #6366f1; }
-    input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button { opacity: 1; }
-
-    .coin-count { font-size: 0.85rem; color: #6b7280; text-align: center; font-variant-numeric: tabular-nums; }
-    .coin-count.has-value { color: #374151; font-weight: 600; }
-
-    .coin-value { font-size: 0.9rem; font-weight: 700; color: #d1d5db; text-align: right; font-variant-numeric: tabular-nums; }
-    .coin-value.has-value { color: #059669; }
-    .note-value.has-value { color: #0ea5e9; }
-
-    /* Totals */
-    .totals-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .subtotal-bar {
-      border-radius: 10px;
-      padding: 12px 14px;
-    }
-
-    .subtotal-bar.coins { background: #f0f4ff; border: 1.5px solid #c7d2fe; }
-    .subtotal-bar.notes { background: #f0f9ff; border: 1.5px solid #bae6fd; }
-
-    .subtotal-label { font-size: 0.72rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
-    .subtotal-value { font-size: 1.2rem; font-weight: 800; font-variant-numeric: tabular-nums; }
-    .subtotal-bar.coins .subtotal-value { color: #4338ca; }
-    .subtotal-bar.notes .subtotal-value { color: #0284c7; }
-
-    .total-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #1a1a2e;
-      border-radius: 10px;
-      padding: 14px 18px;
-      margin-bottom: 12px;
-    }
-
-    .total-label { font-weight: 700; color: #e5e7eb; font-size: 0.9rem; }
-    .total-label span { display: block; font-size: 0.72rem; font-weight: 400; color: #6b7280; }
-    .total-value { font-size: 1.8rem; font-weight: 800; color: #a5b4fc; font-variant-numeric: tabular-nums; }
-
-    /* Cash closed by */
-    .closed-by {
-      margin-bottom: 12px;
-    }
-
-    .closed-label {
-      display: block;
-      font-size: 0.72rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #6b7280;
-      margin-bottom: 6px;
-    }
-
-    .closed-by input[type="text"] {
-      width: 100%;
-      padding: 11px 14px;
-      border: 1.5px solid #e5e7eb;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 600;
-      color: #1f2937;
-      transition: border-color 0.2s;
-      min-height: 44px;
-    }
-
-    .closed-by input[type="text"]::placeholder { color: #d1d5db; font-weight: 400; }
-    .closed-by input[type="text"]:focus { outline: none; border-color: #6366f1; }
-
-    /* Timestamp */
-    .timestamp-bar {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: #f9fafb;
-      border: 1.5px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 10px 14px;
-      margin-bottom: 12px;
-    }
-
-    .timestamp-label {
-      font-size: 0.72rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #6b7280;
-      white-space: nowrap;
-    }
-
-    .timestamp-value {
-      flex: 1;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: #1f2937;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .stamp-btn {
-      padding: 6px 12px;
-      background: #6366f1;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      cursor: pointer;
-      min-height: unset;
-      white-space: nowrap;
-    }
-
-    .stamp-btn:hover { opacity: 0.85; }
-
-    /* Buttons */
-    .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
-
-    button {
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 0.875rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      min-height: 44px;
-      transition: opacity 0.15s;
-    }
-
-    button:hover { opacity: 0.85; }
-
-    #exportBtn { background: #6366f1; color: white; }
-    #resetBtn { background: #f3f4f6; color: #374151; border: 1.5px solid #e5e7eb; }
-
-    /* Signature */
-    .signature-bar {
-      width: 100%;
-      max-width: 640px;
-      text-align: center;
-      padding: 18px 12px 24px;
-    }
-
-    .signature-name {
-      font-size: 1.1rem;
-      font-weight: 800;
-      color: #4338ca;
-      letter-spacing: 0.04em;
-      text-decoration: none;
-      border-bottom: 2px solid #c7d2fe;
-      transition: color 0.2s, border-color 0.2s;
-    }
-
-    .signature-name:hover {
-      color: #6366f1;
-      border-color: #6366f1;
-    }
-
-    .signature-sub {
-      font-size: 0.78rem;
-      color: #9ca3af;
-      margin-top: 2px;
-    }
-
-    /* Divider */
-    .section-gap { margin-bottom: 20px; }
-
-    /* Responsive */
-    @media (max-width: 400px) {
-      .container { padding: 18px 12px; }
-      .totals-grid { grid-template-columns: 1fr; }
-      .coins-row, .coins-header { grid-template-columns: 50px 1fr 54px 64px; }
-      .notes-row, .notes-header { grid-template-columns: 50px 1fr 64px; }
-      .total-value { font-size: 1.5rem; }
-    }
-
-    /* Print styles */
-    @media print {
-      @page { margin: 10mm; size: A4 portrait; }
-
-      html, body {
-        background: white;
-        padding: 0;
-        margin: 0;
-        height: auto;
-      }
-
-      body {
-        display: block;
-        padding: 0;
-      }
-
-      .container {
-        box-shadow: none;
-        border-radius: 0;
-        max-width: 100%;
-        padding: 10px 12px;
-        font-size: 0.78rem;
-      }
-
-      h1 { font-size: 1rem; margin-bottom: 2px; }
-      .subtitle { margin-bottom: 10px; font-size: 0.7rem; }
-
-      .section-gap { margin-bottom: 10px; }
-      .section-title { padding: 3px 8px; margin-bottom: 6px; font-size: 0.65rem; }
-      .table-header { padding-bottom: 4px; margin-bottom: 4px; }
-      .coin-grid, .notes-grid { gap: 2px; margin-bottom: 10px; }
-
-      .coin-row { padding: 3px 4px; }
-
-      input[type="number"] {
-        border: 1px solid #d1d5db;
-        padding: 4px 6px;
-        font-size: 0.8rem;
-        min-height: unset;
-        height: 26px;
-      }
-
-      .coin-count, .coin-value { font-size: 0.8rem; }
-      .coin-label { font-size: 0.82rem; }
-      .coin-label span { font-size: 0.6rem; }
-      .table-header span { font-size: 0.6rem; }
-
-      .totals-grid { gap: 6px; margin-bottom: 8px; }
-      .subtotal-bar { padding: 8px 10px; }
-      .subtotal-label { font-size: 0.65rem; }
-      .subtotal-value { font-size: 1rem; }
-
-      .total-bar { padding: 10px 14px; margin-bottom: 8px; }
-      .total-value { font-size: 1.4rem; }
-      .total-label { font-size: 0.82rem; }
-
-      .btn-row { display: none; }
-
-      .closed-by input[type="text"] {
-        border: none;
-        border-bottom: 1.5px solid #374151;
-        border-radius: 0;
-        padding: 4px 2px;
-        font-size: 0.9rem;
-        min-height: unset;
-      }
-
-      .timestamp-bar { padding: 6px 10px; margin-bottom: 8px; }
-      .stamp-btn { display: none; }
-
-      .signature-bar { padding: 8px 0 4px; }
-      .signature-name { font-size: 0.9rem; }
-      .signature-sub { font-size: 0.68rem; }
-
-      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    @media(max-width:400px){
+      .container{padding:18px 12px}
+      .totals-grid{grid-template-columns:1fr}
+      .coins-row,.coins-header{grid-template-columns:50px 1fr 54px 64px}
+      .notes-row,.notes-header{grid-template-columns:50px 1fr 64px}
+      .total-value{font-size:1.5rem}
     }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h1>🪙 UK Cash Calculator</h1>
-  <p class="subtitle">Coins by weight (g) · Notes by quantity · Updates instantly</p>
+  <h1>&#x1FA99; UK Cash Calculator</h1>
+  <p class="subtitle">Coins by weight (g) &middot; Notes by quantity &middot; Updates instantly</p>
 
-  <!-- COINS -->
   <div class="section-gap">
     <div class="section-title coins">Coins</div>
     <div class="table-header coins-header">
-      <span>Coin</span>
-      <span>Weight (g)</span>
-      <span style="text-align:center">Count</span>
-      <span style="text-align:right">Value</span>
+      <span>Coin</span><span style="text-align:center">Weight (g)</span><span style="text-align:center">Count</span><span style="text-align:right">Value</span>
     </div>
     <div class="coin-grid" id="coinGrid"></div>
   </div>
 
-  <!-- NOTES -->
   <div class="section-gap">
     <div class="section-title notes">Notes</div>
     <div class="table-header notes-header">
-      <span>Note</span>
-      <span>Quantity</span>
-      <span style="text-align:right">Value</span>
+      <span>Note</span><span style="text-align:center">Quantity</span><span style="text-align:right">Value</span>
     </div>
     <div class="notes-grid" id="notesGrid"></div>
   </div>
 
-  <!-- TOTALS -->
   <div class="totals-grid">
     <div class="subtotal-bar coins">
       <div class="subtotal-label">Coins Total</div>
-      <div class="subtotal-value" id="coinsTotal">£0.00</div>
+      <div class="subtotal-value" id="coinsTotal">&#163;0.00</div>
     </div>
     <div class="subtotal-bar notes">
       <div class="subtotal-label">Notes Total</div>
-      <div class="subtotal-value" id="notesTotal">£0.00</div>
+      <div class="subtotal-value" id="notesTotal">&#163;0.00</div>
     </div>
   </div>
 
   <div class="total-bar">
-    <div class="total-label">
-      Grand Total
-      <span id="totalCoins">0 items</span>
-    </div>
-    <div class="total-value" id="grandTotal">£0.00</div>
+    <div class="total-label">Grand Total<span id="totalItems">0 items</span></div>
+    <div class="total-value" id="grandTotal">&#163;0.00</div>
   </div>
 
   <div class="closed-by">
@@ -419,24 +133,25 @@
 
   <div class="timestamp-bar">
     <span class="timestamp-label">Closed at</span>
-    <span class="timestamp-value" id="timestamp">—</span>
+    <span class="timestamp-value" id="timestamp">&mdash;</span>
     <button class="stamp-btn" id="stampBtn">Set Now</button>
   </div>
 
   <div class="btn-row">
-    <button id="exportBtn">⬇ Export PDF</button>
-    <button id="resetBtn">↺ Reset All</button>
+    <button id="exportBtn">&#x2B07; Export PDF</button>
+    <button id="resetBtn">&#x21BA; Reset All</button>
   </div>
 </div>
 
-<!-- SIGNATURE -->
 <div class="signature-bar">
-  <a class="signature-name" href="https://jejo8.github.io/port-folio/" target="_blank">JeJo Barista · Aylesbury</a>
+  <a class="signature-name" href="https://jejo8.github.io/port-folio/" target="_blank">JeJo Barista &middot; Aylesbury</a>
   <div class="signature-sub">UK Cash Calculator</div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-  const COINS = [
+(function() {
+  var COINS = [
     { label: '£2',  pence: 200, weight: 12.00 },
     { label: '£1',  pence: 100, weight: 8.75  },
     { label: '50p', pence: 50,  weight: 8.00  },
@@ -444,88 +159,89 @@
     { label: '10p', pence: 10,  weight: 6.50  },
     { label: '5p',  pence: 5,   weight: 3.25  },
     { label: '2p',  pence: 2,   weight: 7.12  },
-    { label: '1p',  pence: 1,   weight: 3.56  },
+    { label: '1p',  pence: 1,   weight: 3.56  }
   ];
 
-  const NOTES = [
+  var NOTES = [
     { label: '£50', pence: 5000 },
     { label: '£20', pence: 2000 },
     { label: '£10', pence: 1000 },
-    { label: '£5',  pence: 500  },
+    { label: '£5',  pence: 500  }
   ];
 
+  function fmtP(p) {
+    if (p === 0) return '£0.00';
+    return p >= 100 ? '£' + (p / 100).toFixed(2) : p + 'p';
+  }
+
   // Build coin rows
-  const coinGrid = document.getElementById('coinGrid');
-  COINS.forEach((coin, i) => {
-    const row = document.createElement('div');
+  var coinGrid = document.getElementById('coinGrid');
+  COINS.forEach(function(coin, i) {
+    var row = document.createElement('div');
     row.className = 'coin-row coins-row';
-    row.id = `crow${i}`;
-    row.innerHTML = `
-      <div class="coin-label">${coin.label}<span>${coin.weight}g</span></div>
-      <input type="number" id="cg${i}" min="0" step="any" placeholder="0g">
-      <div class="coin-count" id="ccount${i}">—</div>
-      <div class="coin-value" id="cval${i}">—</div>
-    `;
+    row.id = 'crow' + i;
+    var label = document.createElement('div');
+    label.className = 'coin-label';
+    label.innerHTML = coin.label + '<span>' + coin.weight + 'g</span>';
+    var inp = document.createElement('input');
+    inp.type = 'number'; inp.id = 'cg' + i; inp.min = '0'; inp.step = 'any'; inp.placeholder = '0g';
+    var cnt = document.createElement('div');
+    cnt.className = 'coin-count'; cnt.id = 'ccount' + i; cnt.textContent = '—';
+    var val = document.createElement('div');
+    val.className = 'coin-value'; val.id = 'cval' + i; val.textContent = '—';
+    row.appendChild(label); row.appendChild(inp); row.appendChild(cnt); row.appendChild(val);
     coinGrid.appendChild(row);
-    row.querySelector(`#cg${i}`).addEventListener('input', recalculate);
+    inp.addEventListener('input', recalculate);
   });
 
   // Build notes rows
-  const notesGrid = document.getElementById('notesGrid');
-  NOTES.forEach((note, i) => {
-    const row = document.createElement('div');
+  var notesGrid = document.getElementById('notesGrid');
+  NOTES.forEach(function(note, i) {
+    var row = document.createElement('div');
     row.className = 'coin-row notes-row';
-    row.id = `nrow${i}`;
-    row.innerHTML = `
-      <div class="coin-label">${note.label}<span>note</span></div>
-      <input type="number" id="nq${i}" min="0" step="1" placeholder="0">
-      <div class="coin-value note-value" id="nval${i}">—</div>
-    `;
+    row.id = 'nrow' + i;
+    var label = document.createElement('div');
+    label.className = 'coin-label';
+    label.innerHTML = note.label + '<span>note</span>';
+    var inp = document.createElement('input');
+    inp.type = 'number'; inp.id = 'nq' + i; inp.min = '0'; inp.step = '1'; inp.placeholder = '0';
+    var val = document.createElement('div');
+    val.className = 'coin-value note-value'; val.id = 'nval' + i; val.textContent = '—';
+    row.appendChild(label); row.appendChild(inp); row.appendChild(val);
     notesGrid.appendChild(row);
-    row.querySelector(`#nq${i}`).addEventListener('input', recalculate);
+    inp.addEventListener('input', recalculate);
   });
 
-  function fmt(pence) {
-    if (pence === 0) return '—';
-    return pence >= 100 ? `£${(pence / 100).toFixed(2)}` : `${pence}p`;
-  }
-
-  function fmtTotal(pence) {
-    return pence >= 100 ? `£${(pence / 100).toFixed(2)}` : `${pence}p`;
-  }
-
   function recalculate() {
-    let coinPence = 0, notePence = 0, totalItems = 0;
+    var coinPence = 0, notePence = 0, totalItems = 0;
 
-    COINS.forEach((coin, i) => {
-      const g = parseFloat(document.getElementById(`cg${i}`).value) || 0;
-      const countEl = document.getElementById(`ccount${i}`);
-      const valEl   = document.getElementById(`cval${i}`);
-      const row     = document.getElementById(`crow${i}`);
-
+    COINS.forEach(function(coin, i) {
+      var g = parseFloat(document.getElementById('cg' + i).value) || 0;
+      var countEl = document.getElementById('ccount' + i);
+      var valEl = document.getElementById('cval' + i);
+      var row = document.getElementById('crow' + i);
       if (g > 0) {
-        const count = Math.round(g / coin.weight);
-        const p = count * coin.pence;
+        var count = Math.round(g / coin.weight);
+        var p = count * coin.pence;
         coinPence += p; totalItems += count;
         countEl.textContent = count; countEl.className = 'coin-count has-value';
-        valEl.textContent = fmt(p);  valEl.className = 'coin-value has-value';
+        valEl.textContent = fmtP(p); valEl.className = 'coin-value has-value';
         row.classList.add('active');
       } else {
         countEl.textContent = '—'; countEl.className = 'coin-count';
-        valEl.textContent = '—';   valEl.className = 'coin-value';
+        valEl.textContent = '—'; valEl.className = 'coin-value';
         row.classList.remove('active');
       }
     });
 
-    NOTES.forEach((note, i) => {
-      const qty = parseInt(document.getElementById(`nq${i}`).value) || 0;
-      const valEl = document.getElementById(`nval${i}`);
-      const row   = document.getElementById(`nrow${i}`);
-
+    NOTES.forEach(function(note, i) {
+      var qty = parseInt(document.getElementById('nq' + i).value) || 0;
+      var valEl = document.getElementById('nval' + i);
+      var row = document.getElementById('nrow' + i);
       if (qty > 0) {
-        const p = qty * note.pence;
+        var p = qty * note.pence;
         notePence += p; totalItems += qty;
-        valEl.textContent = fmt(p); valEl.className = 'coin-value note-value has-value';
+        valEl.textContent = fmtP(p); valEl.className = 'coin-value note-value has-value';
         row.classList.add('active');
       } else {
         valEl.textContent = '—'; valEl.className = 'coin-value note-value';
@@ -533,304 +249,183 @@
       }
     });
 
-    document.getElementById('coinsTotal').textContent = fmtTotal(coinPence);
-    document.getElementById('notesTotal').textContent = fmtTotal(notePence);
-    document.getElementById('grandTotal').textContent = fmtTotal(coinPence + notePence);
-    document.getElementById('totalCoins').textContent =
-      totalItems > 0 ? `${totalItems} coins & notes` : '0 items';
+    document.getElementById('coinsTotal').textContent = fmtP(coinPence);
+    document.getElementById('notesTotal').textContent = fmtP(notePence);
+    document.getElementById('grandTotal').textContent = fmtP(coinPence + notePence);
+    document.getElementById('totalItems').textContent = totalItems > 0 ? totalItems + ' coins & notes' : '0 items';
   }
 
-  document.getElementById('resetBtn').addEventListener('click', () => {
-    COINS.forEach((_, i) => document.getElementById(`cg${i}`).value = '');
-    NOTES.forEach((_, i) => document.getElementById(`nq${i}`).value = '');
-    recalculate();
-  });
-
-  // Timestamp
-  document.getElementById('stampBtn').addEventListener('click', () => {
-    const now = new Date();
-    const ts = now.toLocaleDateString('en-GB', { weekday:'short', day:'2-digit', month:'short', year:'numeric' })
+  document.getElementById('stampBtn').addEventListener('click', function() {
+    var now = new Date();
+    var ts = now.toLocaleDateString('en-GB', { weekday:'short', day:'2-digit', month:'short', year:'numeric' })
       + ' · ' + now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
     document.getElementById('timestamp').textContent = ts;
   });
 
-  // PDF export — drawn directly with jsPDF
-  document.getElementById('exportBtn').addEventListener('click', () => {
-    const now = new Date();
-    const dateStr = now.toLocaleDateString('en-GB', { day:'2-digit', month:'2-digit', year:'numeric' }).replace(/\//g, '-');
-    const filename = `Cash Closing ${dateStr}.pdf`;
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-    const W = 210, L = 15, R = W - L;
-    let y = 0;
+  document.getElementById('resetBtn').addEventListener('click', function() {
+    COINS.forEach(function(_, i) { document.getElementById('cg' + i).value = ''; });
+    NOTES.forEach(function(_, i) { document.getElementById('nq' + i).value = ''; });
+    document.getElementById('closedBy').value = '';
+    document.getElementById('timestamp').textContent = '—';
+    recalculate();
+  });
 
-    const fmtP = p => p >= 100 ? `£${(p/100).toFixed(2)}` : `${p}p`;
+  document.getElementById('exportBtn').addEventListener('click', function() {
+    var jsPDF = window.jspdf.jsPDF;
+    var doc = new jsPDF({ unit:'mm', format:'a4', orientation:'portrait' });
+    var now = new Date();
+    var dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
+    var W = 210, L = 14, R = 196;
+    var y = 0;
 
-    // Collect values
-    let coinPence = 0, notePence = 0;
-    const coinData = COINS.map((coin, i) => {
-      const g = parseFloat(document.getElementById(`cg${i}`).value) || 0;
-      const count = g > 0 ? Math.round(g / coin.weight) : 0;
-      const p = count * coin.pence;
+    // Collect data
+    var coinPence = 0, notePence = 0;
+    var coinRows = [];
+    COINS.forEach(function(coin, i) {
+      var g = parseFloat(document.getElementById('cg' + i).value) || 0;
+      var count = g > 0 ? Math.round(g / coin.weight) : 0;
+      var p = count * coin.pence;
       coinPence += p;
-      return { label: coin.label, g, count, p };
+      coinRows.push({ label: coin.label, g: g, count: count, p: p });
     });
-    const noteData = NOTES.map((note, i) => {
-      const qty = parseInt(document.getElementById(`nq${i}`).value) || 0;
-      const p = qty * note.pence;
+    var noteRows = [];
+    NOTES.forEach(function(note, i) {
+      var qty = parseInt(document.getElementById('nq' + i).value) || 0;
+      var p = qty * note.pence;
       notePence += p;
-      return { label: note.label, qty, p };
+      noteRows.push({ label: note.label, qty: qty, p: p });
     });
-    const grandTotal = coinPence + notePence;
-    const closedBy = document.getElementById('closedBy').value || '—';
-    const timestamp = document.getElementById('timestamp').textContent.trim() || '—';
+    var grandTotal = coinPence + notePence;
+    var closedBy = document.getElementById('closedBy').value || '—';
+    var timestamp = document.getElementById('timestamp').textContent || '—';
 
-    // ── HEADER BAR ──
+    // HEADER
     doc.setFillColor(99, 102, 241);
-    doc.rect(0, 0, W, 22, 'F');
+    doc.rect(0, 0, W, 24, 'F');
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(14); doc.setFont('helvetica','bold');
-    doc.text('UK Cash Closing Report', L, 10);
-    doc.setFontSize(8); doc.setFont('helvetica','normal');
-    doc.text(now.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}), L, 16);
-    doc.setFontSize(8);
-    doc.text('Closed by: ' + closedBy, R, 10, { align:'right' });
-    doc.text('Time: ' + timestamp, R, 16, { align:'right' });
-    y = 30;
+    doc.setFontSize(15); doc.setFont('helvetica', 'bold');
+    doc.text('UK Cash Closing Report', L, 11);
+    doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+    doc.text(now.toLocaleDateString('en-GB', { weekday:'long', day:'2-digit', month:'long', year:'numeric' }), L, 18);
+    doc.setFontSize(8.5); doc.setFont('helvetica', 'bold');
+    doc.text('Closed by: ' + closedBy, R, 11, { align:'right' });
+    doc.setFont('helvetica', 'normal');
+    doc.text('Time: ' + timestamp, R, 18, { align:'right' });
+    y = 32;
 
-    // ── helper functions ──
-    const sectionHeader = (label, color) => {
-      doc.setFillColor(...color);
-      doc.roundedRect(L, y, 28, 6, 2, 2, 'F');
-      doc.setTextColor(255,255,255);
-      doc.setFontSize(7); doc.setFont('helvetica','bold');
-      doc.text(label, L + 14, y + 4.2, { align:'center' });
-      y += 9;
-    };
+    // COINS SECTION
+    doc.setFillColor(99, 102, 241);
+    doc.roundedRect(L, y, 22, 6, 2, 2, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+    doc.text('COINS', L + 11, y + 4.3, { align:'center' });
+    y += 10;
 
-    const tableHeader = (cols) => {
-      doc.setTextColor(150,150,160);
-      doc.setFontSize(7); doc.setFont('helvetica','bold');
-      cols.forEach(c => doc.text(c.text, c.x, y, { align: c.align || 'left' }));
-      y += 2;
-      doc.setDrawColor(200,200,210);
-      doc.setLineWidth(0.3);
-      doc.line(L, y, R, y);
-      y += 4;
-    };
-
-    const dataRow = (cols, shade) => {
-      if (shade) { doc.setFillColor(248,249,255); doc.rect(L, y-3.5, R-L, 6.5, 'F'); }
-      doc.setTextColor(30,30,40);
-      doc.setFontSize(8.5); doc.setFont('helvetica','normal');
-      cols.forEach(c => {
-        if (c.bold) doc.setFont('helvetica','bold');
-        doc.text(c.text, c.x, y, { align: c.align || 'left' });
-        if (c.bold) doc.setFont('helvetica','normal');
-      });
-      y += 7;
-    };
-
-    const subtotalRow = (label, val, color) => {
-      doc.setDrawColor(...color);
-      doc.setLineWidth(0.4);
-      doc.line(L, y-2, R, y-2);
-      doc.setTextColor(...color);
-      doc.setFontSize(9); doc.setFont('helvetica','bold');
-      doc.text(label, L, y + 2);
-      doc.text(val, R, y + 2, { align:'right' });
-      y += 8;
-    };
-
-    // ── COINS TABLE ──
-    sectionHeader('COINS', [99,102,241]);
-    tableHeader([
-      { text:'Coin', x:L },
-      { text:'Weight', x:70, align:'center' },
-      { text:'Count', x:120, align:'center' },
-      { text:'Value', x:R, align:'right' }
-    ]);
-    coinData.forEach((r, idx) => {
-      dataRow([
-        { text: r.label, x:L, bold:true },
-        { text: r.g > 0 ? r.g+'g' : '—', x:70, align:'center' },
-        { text: r.count > 0 ? String(r.count) : '—', x:120, align:'center' },
-        { text: r.p > 0 ? fmtP(r.p) : '—', x:R, align:'right', bold: r.p > 0 }
-      ], idx % 2 === 0);
-    });
-    subtotalRow('Coins Total', fmtP(coinPence), [67,56,202]);
-    y += 4;
-
-    // ── NOTES TABLE ──
-    sectionHeader('NOTES', [14,165,233]);
-    tableHeader([
-      { text:'Note', x:L },
-      { text:'Quantity', x:100, align:'center' },
-      { text:'Value', x:R, align:'right' }
-    ]);
-    noteData.forEach((r, idx) => {
-      dataRow([
-        { text: r.label, x:L, bold:true },
-        { text: r.qty > 0 ? String(r.qty) : '—', x:100, align:'center' },
-        { text: r.p > 0 ? fmtP(r.p) : '—', x:R, align:'right', bold: r.p > 0 }
-      ], idx % 2 === 0);
-    });
-    subtotalRow('Notes Total', fmtP(notePence), [2,132,199]);
-    y += 6;
-
-    // ── GRAND TOTAL BOX ──
-    doc.setFillColor(26, 26, 46);
-    doc.roundedRect(L, y, R-L, 16, 3, 3, 'F');
-    doc.setTextColor(229,231,235);
-    doc.setFontSize(10); doc.setFont('helvetica','bold');
-    doc.text('GRAND TOTAL', L+6, y+10);
-    doc.setTextColor(165,180,252);
-    doc.setFontSize(16); doc.setFont('helvetica','bold');
-    doc.text(fmtP(grandTotal), R-6, y+10.5, { align:'right' });
-    y += 24;
-
-    // ── FOOTER ──
-    doc.setDrawColor(200,200,210);
-    doc.setLineWidth(0.3);
+    // Coins table header
+    doc.setTextColor(140, 140, 155);
+    doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+    doc.text('COIN', L, y);
+    doc.text('WEIGHT', 80, y, { align:'center' });
+    doc.text('COUNT', 130, y, { align:'center' });
+    doc.text('VALUE', R, y, { align:'right' });
+    y += 2;
+    doc.setDrawColor(210, 210, 220); doc.setLineWidth(0.3);
     doc.line(L, y, R, y);
-    y += 6;
-    doc.setTextColor(99,102,241);
-    doc.setFontSize(9); doc.setFont('helvetica','bold');
-    doc.text('JeJo Barista · Aylesbury', W/2, y, { align:'center' });
-    doc.setTextColor(150,150,160);
-    doc.setFontSize(7); doc.setFont('helvetica','normal');
-    doc.text('jejo8.github.io/port-folio', W/2, y+5, { align:'center' });
+    y += 5;
 
-    doc.save(filename);
+    coinRows.forEach(function(r, idx) {
+      if (idx % 2 === 0) {
+        doc.setFillColor(248, 249, 255);
+        doc.rect(L, y - 3.5, R - L, 7, 'F');
+      }
+      doc.setTextColor(30, 30, 45);
+      doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+      doc.text(r.label, L, y);
+      doc.setFont('helvetica', 'normal');
+      doc.text(r.g > 0 ? r.g + 'g' : '-', 80, y, { align:'center' });
+      doc.text(r.count > 0 ? String(r.count) : '-', 130, y, { align:'center' });
+      if (r.p > 0) { doc.setFont('helvetica', 'bold'); doc.setTextColor(5, 150, 105); }
+      doc.text(r.p > 0 ? fmtP(r.p) : '-', R, y, { align:'right' });
+      doc.setFont('helvetica', 'normal'); doc.setTextColor(30, 30, 45);
+      y += 7;
+    });
+
+    // Coins subtotal
+    doc.setDrawColor(100, 80, 200); doc.setLineWidth(0.4);
+    doc.line(L, y - 1, R, y - 1);
+    doc.setTextColor(67, 56, 202); doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+    doc.text('Coins Total', L, y + 4);
+    doc.text(fmtP(coinPence), R, y + 4, { align:'right' });
+    y += 13;
+
+    // NOTES SECTION
+    doc.setFillColor(14, 165, 233);
+    doc.roundedRect(L, y, 22, 6, 2, 2, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+    doc.text('NOTES', L + 11, y + 4.3, { align:'center' });
+    y += 10;
+
+    // Notes table header
+    doc.setTextColor(140, 140, 155);
+    doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+    doc.text('NOTE', L, y);
+    doc.text('QUANTITY', 110, y, { align:'center' });
+    doc.text('VALUE', R, y, { align:'right' });
+    y += 2;
+    doc.setDrawColor(210, 210, 220); doc.setLineWidth(0.3);
+    doc.line(L, y, R, y);
+    y += 5;
+
+    noteRows.forEach(function(r, idx) {
+      if (idx % 2 === 0) {
+        doc.setFillColor(240, 249, 255);
+        doc.rect(L, y - 3.5, R - L, 7, 'F');
+      }
+      doc.setTextColor(30, 30, 45);
+      doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+      doc.text(r.label, L, y);
+      doc.setFont('helvetica', 'normal');
+      doc.text(r.qty > 0 ? String(r.qty) : '-', 110, y, { align:'center' });
+      if (r.p > 0) { doc.setFont('helvetica', 'bold'); doc.setTextColor(2, 132, 199); }
+      doc.text(r.p > 0 ? fmtP(r.p) : '-', R, y, { align:'right' });
+      doc.setFont('helvetica', 'normal'); doc.setTextColor(30, 30, 45);
+      y += 7;
+    });
+
+    // Notes subtotal
+    doc.setDrawColor(2, 132, 199); doc.setLineWidth(0.4);
+    doc.line(L, y - 1, R, y - 1);
+    doc.setTextColor(2, 132, 199); doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+    doc.text('Notes Total', L, y + 4);
+    doc.text(fmtP(notePence), R, y + 4, { align:'right' });
+    y += 14;
+
+    // GRAND TOTAL BOX
+    doc.setFillColor(26, 26, 46);
+    doc.roundedRect(L, y, R - L, 18, 3, 3, 'F');
+    doc.setTextColor(200, 200, 210);
+    doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+    doc.text('GRAND TOTAL', L + 6, y + 11);
+    doc.setTextColor(165, 180, 252);
+    doc.setFontSize(17); doc.setFont('helvetica', 'bold');
+    doc.text(fmtP(grandTotal), R - 6, y + 12, { align:'right' });
+    y += 26;
+
+    // FOOTER
+    doc.setDrawColor(200, 200, 220); doc.setLineWidth(0.3);
+    doc.line(L, y, R, y);
+    y += 7;
+    doc.setTextColor(99, 102, 241);
+    doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+    doc.text('JeJo Barista  Aylesbury', W / 2, y, { align:'center' });
+    doc.setTextColor(150, 150, 165);
+    doc.setFontSize(7); doc.setFont('helvetica', 'normal');
+    doc.text('jejo8.github.io/port-folio', W / 2, y + 5, { align:'center' });
+
+    doc.save('Cash Closing ' + dateStr + '.pdf');
   });
-
-    // Collect current values
-    let coinRows = '', coinPence = 0;
-    COINS.forEach((coin, i) => {
-      const g = parseFloat(document.getElementById(`cg${i}`).value) || 0;
-      const count = g > 0 ? Math.round(g / coin.weight) : 0;
-      const p = count * coin.pence;
-      coinPence += p;
-      const val = p > 0 ? (p >= 100 ? `£${(p/100).toFixed(2)}` : `${p}p`) : '—';
-      coinRows += `<tr>
-        <td>${coin.label}</td>
-        <td>${g > 0 ? g + 'g' : '—'}</td>
-        <td>${count > 0 ? count : '—'}</td>
-        <td class="val">${val}</td>
-      </tr>`;
-    });
-
-    let noteRows = '', notePence = 0;
-    NOTES.forEach((note, i) => {
-      const qty = parseInt(document.getElementById(`nq${i}`).value) || 0;
-      const p = qty * note.pence;
-      notePence += p;
-      const val = p > 0 ? `£${(p/100).toFixed(2)}` : '—';
-      noteRows += `<tr>
-        <td>${note.label}</td>
-        <td>${qty > 0 ? qty : '—'}</td>
-        <td class="val">${val}</td>
-      </tr>`;
-    });
-
-    const grandTotal = coinPence + notePence;
-    const fmtP = p => p >= 100 ? `£${(p/100).toFixed(2)}` : `${p}p`;
-    const closedBy = document.getElementById('closedBy').value || '—';
-    const timestamp = document.getElementById('timestamp').textContent || '—';
-
-    const html = `
-    <div style="font-family:'Segoe UI',sans-serif;padding:20px;color:#1f2937;max-width:700px;margin:0 auto;">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;border-bottom:2px solid #6366f1;padding-bottom:10px;">
-        <div>
-          <h1 style="font-size:1.3rem;color:#1a1a2e;margin:0 0 2px">🪙 Cash Closing Report</h1>
-          <p style="font-size:0.78rem;color:#6b7280;margin:0">${now.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'})}</p>
-        </div>
-        <div style="text-align:right">
-          <div style="font-size:0.72rem;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em">Closed by</div>
-          <div style="font-size:1rem;font-weight:700;color:#1f2937">${closedBy}</div>
-          <div style="font-size:0.78rem;color:#6b7280;margin-top:2px">${timestamp}</div>
-        </div>
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
-
-        <!-- COINS -->
-        <div>
-          <div style="background:#6366f1;color:white;font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;padding:4px 10px;border-radius:20px;display:inline-block;margin-bottom:8px;">Coins</div>
-          <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
-            <thead>
-              <tr style="color:#9ca3af;font-size:0.68rem;text-transform:uppercase;border-bottom:1.5px solid #e5e7eb;">
-                <th style="text-align:left;padding:4px 2px;font-weight:700;">Coin</th>
-                <th style="text-align:center;padding:4px 2px;font-weight:700;">Weight</th>
-                <th style="text-align:center;padding:4px 2px;font-weight:700;">Count</th>
-                <th style="text-align:right;padding:4px 2px;font-weight:700;">Value</th>
-              </tr>
-            </thead>
-            <tbody>${coinRows}</tbody>
-            <tfoot>
-              <tr style="border-top:1.5px solid #c7d2fe;">
-                <td colspan="3" style="padding:6px 2px;font-weight:700;font-size:0.8rem;color:#4338ca;">Coins Total</td>
-                <td style="text-align:right;font-weight:800;color:#4338ca;font-size:0.9rem;padding:6px 2px;">${fmtP(coinPence)}</td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-
-        <!-- NOTES -->
-        <div>
-          <div style="background:#0ea5e9;color:white;font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;padding:4px 10px;border-radius:20px;display:inline-block;margin-bottom:8px;">Notes</div>
-          <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
-            <thead>
-              <tr style="color:#9ca3af;font-size:0.68rem;text-transform:uppercase;border-bottom:1.5px solid #e5e7eb;">
-                <th style="text-align:left;padding:4px 2px;font-weight:700;">Note</th>
-                <th style="text-align:center;padding:4px 2px;font-weight:700;">Qty</th>
-                <th style="text-align:right;padding:4px 2px;font-weight:700;">Value</th>
-              </tr>
-            </thead>
-            <tbody>${noteRows}</tbody>
-            <tfoot>
-              <tr style="border-top:1.5px solid #bae6fd;">
-                <td colspan="2" style="padding:6px 2px;font-weight:700;font-size:0.8rem;color:#0284c7;">Notes Total</td>
-                <td style="text-align:right;font-weight:800;color:#0284c7;font-size:0.9rem;padding:6px 2px;">${fmtP(notePence)}</td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-      </div>
-
-      <!-- GRAND TOTAL -->
-      <div style="background:#1a1a2e;border-radius:10px;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <span style="font-weight:700;color:#e5e7eb;font-size:0.95rem;">Grand Total</span>
-        <span style="font-size:1.8rem;font-weight:800;color:#a5b4fc;">${fmtP(grandTotal)}</span>
-      </div>
-
-      <!-- FOOTER -->
-      <div style="text-align:center;padding-top:10px;border-top:1px solid #e5e7eb;">
-        <a href="https://jejo8.github.io/port-folio/" style="font-size:0.9rem;font-weight:800;color:#4338ca;text-decoration:none;letter-spacing:0.04em;">JeJo Barista · Aylesbury</a>
-        <p style="font-size:0.7rem;color:#9ca3af;margin-top:2px;">UK Cash Calculator</p>
-      </div>
-    </div>`;
-
-    const el = document.createElement('div');
-    el.innerHTML = html;
-
-    // Fix table cell styles via JS (html2pdf needs inline)
-    el.querySelectorAll('td').forEach(td => {
-      td.style.padding = td.style.padding || '5px 2px';
-      td.style.borderBottom = '1px solid #f3f4f6';
-      if (td.classList.contains('val')) td.style.textAlign = 'right';
-    });
-
-    html2pdf().set({
-      margin: 10,
-      filename: filename,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, logging: false },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      pagebreak: { mode: 'avoid-all' }
-    }).from(el).save();
-  });
+})();
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </body>
 </html>
