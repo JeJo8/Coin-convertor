@@ -554,11 +554,155 @@
     document.getElementById('timestamp').textContent = ts;
   });
 
-  // PDF export — builds a clean summary page, no input fields
+  // PDF export — drawn directly with jsPDF
   document.getElementById('exportBtn').addEventListener('click', () => {
     const now = new Date();
     const dateStr = now.toLocaleDateString('en-GB', { day:'2-digit', month:'2-digit', year:'numeric' }).replace(/\//g, '-');
     const filename = `Cash Closing ${dateStr}.pdf`;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+    const W = 210, L = 15, R = W - L;
+    let y = 0;
+
+    const fmtP = p => p >= 100 ? `£${(p/100).toFixed(2)}` : `${p}p`;
+
+    // Collect values
+    let coinPence = 0, notePence = 0;
+    const coinData = COINS.map((coin, i) => {
+      const g = parseFloat(document.getElementById(`cg${i}`).value) || 0;
+      const count = g > 0 ? Math.round(g / coin.weight) : 0;
+      const p = count * coin.pence;
+      coinPence += p;
+      return { label: coin.label, g, count, p };
+    });
+    const noteData = NOTES.map((note, i) => {
+      const qty = parseInt(document.getElementById(`nq${i}`).value) || 0;
+      const p = qty * note.pence;
+      notePence += p;
+      return { label: note.label, qty, p };
+    });
+    const grandTotal = coinPence + notePence;
+    const closedBy = document.getElementById('closedBy').value || '—';
+    const timestamp = document.getElementById('timestamp').textContent.trim() || '—';
+
+    // ── HEADER BAR ──
+    doc.setFillColor(99, 102, 241);
+    doc.rect(0, 0, W, 22, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(14); doc.setFont('helvetica','bold');
+    doc.text('UK Cash Closing Report', L, 10);
+    doc.setFontSize(8); doc.setFont('helvetica','normal');
+    doc.text(now.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}), L, 16);
+    doc.setFontSize(8);
+    doc.text('Closed by: ' + closedBy, R, 10, { align:'right' });
+    doc.text('Time: ' + timestamp, R, 16, { align:'right' });
+    y = 30;
+
+    // ── helper functions ──
+    const sectionHeader = (label, color) => {
+      doc.setFillColor(...color);
+      doc.roundedRect(L, y, 28, 6, 2, 2, 'F');
+      doc.setTextColor(255,255,255);
+      doc.setFontSize(7); doc.setFont('helvetica','bold');
+      doc.text(label, L + 14, y + 4.2, { align:'center' });
+      y += 9;
+    };
+
+    const tableHeader = (cols) => {
+      doc.setTextColor(150,150,160);
+      doc.setFontSize(7); doc.setFont('helvetica','bold');
+      cols.forEach(c => doc.text(c.text, c.x, y, { align: c.align || 'left' }));
+      y += 2;
+      doc.setDrawColor(200,200,210);
+      doc.setLineWidth(0.3);
+      doc.line(L, y, R, y);
+      y += 4;
+    };
+
+    const dataRow = (cols, shade) => {
+      if (shade) { doc.setFillColor(248,249,255); doc.rect(L, y-3.5, R-L, 6.5, 'F'); }
+      doc.setTextColor(30,30,40);
+      doc.setFontSize(8.5); doc.setFont('helvetica','normal');
+      cols.forEach(c => {
+        if (c.bold) doc.setFont('helvetica','bold');
+        doc.text(c.text, c.x, y, { align: c.align || 'left' });
+        if (c.bold) doc.setFont('helvetica','normal');
+      });
+      y += 7;
+    };
+
+    const subtotalRow = (label, val, color) => {
+      doc.setDrawColor(...color);
+      doc.setLineWidth(0.4);
+      doc.line(L, y-2, R, y-2);
+      doc.setTextColor(...color);
+      doc.setFontSize(9); doc.setFont('helvetica','bold');
+      doc.text(label, L, y + 2);
+      doc.text(val, R, y + 2, { align:'right' });
+      y += 8;
+    };
+
+    // ── COINS TABLE ──
+    sectionHeader('COINS', [99,102,241]);
+    tableHeader([
+      { text:'Coin', x:L },
+      { text:'Weight', x:70, align:'center' },
+      { text:'Count', x:120, align:'center' },
+      { text:'Value', x:R, align:'right' }
+    ]);
+    coinData.forEach((r, idx) => {
+      dataRow([
+        { text: r.label, x:L, bold:true },
+        { text: r.g > 0 ? r.g+'g' : '—', x:70, align:'center' },
+        { text: r.count > 0 ? String(r.count) : '—', x:120, align:'center' },
+        { text: r.p > 0 ? fmtP(r.p) : '—', x:R, align:'right', bold: r.p > 0 }
+      ], idx % 2 === 0);
+    });
+    subtotalRow('Coins Total', fmtP(coinPence), [67,56,202]);
+    y += 4;
+
+    // ── NOTES TABLE ──
+    sectionHeader('NOTES', [14,165,233]);
+    tableHeader([
+      { text:'Note', x:L },
+      { text:'Quantity', x:100, align:'center' },
+      { text:'Value', x:R, align:'right' }
+    ]);
+    noteData.forEach((r, idx) => {
+      dataRow([
+        { text: r.label, x:L, bold:true },
+        { text: r.qty > 0 ? String(r.qty) : '—', x:100, align:'center' },
+        { text: r.p > 0 ? fmtP(r.p) : '—', x:R, align:'right', bold: r.p > 0 }
+      ], idx % 2 === 0);
+    });
+    subtotalRow('Notes Total', fmtP(notePence), [2,132,199]);
+    y += 6;
+
+    // ── GRAND TOTAL BOX ──
+    doc.setFillColor(26, 26, 46);
+    doc.roundedRect(L, y, R-L, 16, 3, 3, 'F');
+    doc.setTextColor(229,231,235);
+    doc.setFontSize(10); doc.setFont('helvetica','bold');
+    doc.text('GRAND TOTAL', L+6, y+10);
+    doc.setTextColor(165,180,252);
+    doc.setFontSize(16); doc.setFont('helvetica','bold');
+    doc.text(fmtP(grandTotal), R-6, y+10.5, { align:'right' });
+    y += 24;
+
+    // ── FOOTER ──
+    doc.setDrawColor(200,200,210);
+    doc.setLineWidth(0.3);
+    doc.line(L, y, R, y);
+    y += 6;
+    doc.setTextColor(99,102,241);
+    doc.setFontSize(9); doc.setFont('helvetica','bold');
+    doc.text('JeJo Barista · Aylesbury', W/2, y, { align:'center' });
+    doc.setTextColor(150,150,160);
+    doc.setFontSize(7); doc.setFont('helvetica','normal');
+    doc.text('jejo8.github.io/port-folio', W/2, y+5, { align:'center' });
+
+    doc.save(filename);
+  });
 
     // Collect current values
     let coinRows = '', coinPence = 0;
@@ -687,6 +831,6 @@
     }).from(el).save();
   });
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </body>
 </html>
