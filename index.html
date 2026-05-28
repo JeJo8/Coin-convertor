@@ -151,6 +151,36 @@
     .total-label span { display: block; font-size: 0.72rem; font-weight: 400; color: #6b7280; }
     .total-value { font-size: 1.8rem; font-weight: 800; color: #a5b4fc; font-variant-numeric: tabular-nums; }
 
+    /* Cash closed by */
+    .closed-by {
+      margin-bottom: 12px;
+    }
+
+    .closed-label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #6b7280;
+      margin-bottom: 6px;
+    }
+
+    .closed-by input[type="text"] {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1f2937;
+      transition: border-color 0.2s;
+      min-height: 44px;
+    }
+
+    .closed-by input[type="text"]::placeholder { color: #d1d5db; font-weight: 400; }
+    .closed-by input[type="text"]:focus { outline: none; border-color: #6366f1; }
+
     /* Buttons */
     .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
 
@@ -269,6 +299,15 @@
 
       .btn-row { display: none; }
 
+      .closed-by input[type="text"] {
+        border: none;
+        border-bottom: 1.5px solid #374151;
+        border-radius: 0;
+        padding: 4px 2px;
+        font-size: 0.9rem;
+        min-height: unset;
+      }
+
       .signature-bar { padding: 8px 0 4px; }
       .signature-name { font-size: 0.9rem; }
       .signature-sub { font-size: 0.68rem; }
@@ -324,6 +363,11 @@
       <span id="totalCoins">0 items</span>
     </div>
     <div class="total-value" id="grandTotal">£0.00</div>
+  </div>
+
+  <div class="closed-by">
+    <label class="closed-label" for="closedBy">Cash closed by</label>
+    <input type="text" id="closedBy" placeholder="Enter your name..." autocomplete="name">
   </div>
 
   <div class="btn-row">
