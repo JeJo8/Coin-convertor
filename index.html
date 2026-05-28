@@ -306,13 +306,14 @@
     doc.rect(0, 0, W, 24, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(15); doc.setFont('helvetica', 'bold');
-    doc.text('UK Cash Closing Report', L, 11);
+    doc.text('Cash Closing', L, 11);
     doc.setFontSize(8); doc.setFont('helvetica', 'normal');
     doc.text(now.toLocaleDateString('en-GB', { weekday:'long', day:'2-digit', month:'long', year:'numeric' }), L, 18);
     doc.setFontSize(8.5); doc.setFont('helvetica', 'bold');
     doc.text('Closed by: ' + closedBy, R, 11, { align:'right' });
     doc.setFont('helvetica', 'normal');
-    doc.text('Time: ' + timestamp, R, 18, { align:'right' });
+    var timeOnly = now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+    doc.text('Time: ' + timeOnly, R, 18, { align:'right' });
     y = 32;
 
     // COINS SECTION
@@ -421,9 +422,6 @@
     doc.setTextColor(99, 102, 241);
     doc.setFontSize(9); doc.setFont('helvetica', 'bold');
     doc.textWithLink('JeJo Barista - Aylesbury', W / 2, y, { align:'center', url:'https://jejo8.github.io/port-folio/' });
-    doc.setTextColor(100, 120, 200);
-    doc.setFontSize(7); doc.setFont('helvetica', 'normal');
-    doc.textWithLink('jejo8.github.io/port-folio', W / 2, y + 5, { align:'center', url:'https://jejo8.github.io/port-folio/' });
 
     doc.save('Cash Closing ' + dateStr + '.pdf');
   });
