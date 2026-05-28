@@ -181,6 +181,50 @@
     .closed-by input[type="text"]::placeholder { color: #d1d5db; font-weight: 400; }
     .closed-by input[type="text"]:focus { outline: none; border-color: #6366f1; }
 
+    /* Timestamp */
+    .timestamp-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #f9fafb;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+    }
+
+    .timestamp-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #6b7280;
+      white-space: nowrap;
+    }
+
+    .timestamp-value {
+      flex: 1;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #1f2937;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stamp-btn {
+      padding: 6px 12px;
+      background: #6366f1;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      min-height: unset;
+      white-space: nowrap;
+    }
+
+    .stamp-btn:hover { opacity: 0.85; }
+
     /* Buttons */
     .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
 
@@ -308,6 +352,9 @@
         min-height: unset;
       }
 
+      .timestamp-bar { padding: 6px 10px; margin-bottom: 8px; }
+      .stamp-btn { display: none; }
+
       .signature-bar { padding: 8px 0 4px; }
       .signature-name { font-size: 0.9rem; }
       .signature-sub { font-size: 0.68rem; }
@@ -368,6 +415,12 @@
   <div class="closed-by">
     <label class="closed-label" for="closedBy">Cash closed by</label>
     <input type="text" id="closedBy" placeholder="Enter your name..." autocomplete="name">
+  </div>
+
+  <div class="timestamp-bar">
+    <span class="timestamp-label">Closed at</span>
+    <span class="timestamp-value" id="timestamp">—</span>
+    <button class="stamp-btn" id="stampBtn">Set Now</button>
   </div>
 
   <div class="btn-row">
@@ -493,9 +546,36 @@
     recalculate();
   });
 
+  // Timestamp
+  document.getElementById('stampBtn').addEventListener('click', () => {
+    const now = new Date();
+    const ts = now.toLocaleDateString('en-GB', { weekday:'short', day:'2-digit', month:'short', year:'numeric' })
+      + ' · ' + now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+    document.getElementById('timestamp').textContent = ts;
+  });
+
+  // PDF export — direct download, no print dialog
   document.getElementById('exportBtn').addEventListener('click', () => {
-    window.print();
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-GB', { day:'2-digit', month:'2-digit', year:'numeric' }).replace(/\//g, '-');
+    const filename = `Cash Closing ${dateStr}.pdf`;
+
+    const el = document.querySelector('.container');
+    const btns = document.querySelector('.btn-row');
+    btns.style.display = 'none';
+
+    html2pdf().set({
+      margin: 8,
+      filename: filename,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: 'avoid-all' }
+    }).from(el).save().then(() => {
+      btns.style.display = '';
+    });
   });
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </body>
 </html>
