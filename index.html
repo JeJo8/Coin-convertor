@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UK Coin Calculator</title>
+  <title>UK Cash Calculator — JeJo Barista Aylesbury</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -12,9 +12,9 @@
       background: #f0f4f8;
       min-height: 100vh;
       display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      padding: 24px 12px;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 12px 0;
     }
 
     .container {
@@ -26,27 +26,36 @@
       max-width: 640px;
     }
 
-    h1 {
-      font-size: 1.3rem;
-      color: #1a1a2e;
-      margin-bottom: 4px;
+    h1 { font-size: 1.3rem; color: #1a1a2e; margin-bottom: 4px; }
+    .subtitle { color: #6b7280; font-size: 0.82rem; margin-bottom: 20px; }
+
+    /* Section headers */
+    .section-title {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: white;
+      padding: 5px 12px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+      display: inline-block;
     }
 
-    .subtitle {
-      color: #6b7280;
-      font-size: 0.82rem;
-      margin-bottom: 20px;
-    }
+    .section-title.coins { background: #6366f1; }
+    .section-title.notes { background: #0ea5e9; }
 
-    /* Header row */
+    /* Table header */
     .table-header {
       display: grid;
-      grid-template-columns: 58px 1fr 72px 72px;
       gap: 8px;
       padding: 0 4px 8px;
       border-bottom: 2px solid #e5e7eb;
       margin-bottom: 8px;
     }
+
+    .coins-header { grid-template-columns: 58px 1fr 62px 72px; }
+    .notes-header { grid-template-columns: 58px 1fr 72px; }
 
     .table-header span {
       font-size: 0.68rem;
@@ -60,12 +69,11 @@
     .table-header span:nth-child(3) { text-align: center; }
     .table-header span:nth-child(4) { text-align: right; }
 
-    /* Coin rows */
-    .coin-grid { display: grid; gap: 6px; margin-bottom: 20px; }
+    /* Rows */
+    .coin-grid, .notes-grid { display: grid; gap: 6px; margin-bottom: 20px; }
 
     .coin-row {
       display: grid;
-      grid-template-columns: 58px 1fr 72px 72px;
       align-items: center;
       gap: 8px;
       padding: 6px 4px;
@@ -75,19 +83,13 @@
 
     .coin-row:hover { background: #f9fafb; }
     .coin-row.active { background: #f0f4ff; }
+    .note-row.active { background: #f0f9ff; }
 
-    .coin-label {
-      font-weight: 700;
-      font-size: 0.95rem;
-      color: #1f2937;
-    }
+    .coins-row { grid-template-columns: 58px 1fr 62px 72px; }
+    .notes-row { grid-template-columns: 58px 1fr 72px; }
 
-    .coin-label span {
-      display: block;
-      font-size: 0.65rem;
-      font-weight: 400;
-      color: #9ca3af;
-    }
+    .coin-label { font-weight: 700; font-size: 0.95rem; color: #1f2937; }
+    .coin-label span { display: block; font-size: 0.65rem; font-weight: 400; color: #9ca3af; }
 
     input[type="number"] {
       width: 100%;
@@ -100,132 +102,175 @@
       -moz-appearance: textfield;
       appearance: textfield;
       text-align: center;
-      /* larger tap target on mobile */
       min-height: 44px;
     }
 
-    input[type="number"]:focus {
-      outline: none;
-      border-color: #6366f1;
-      background: #fff;
-    }
-
+    input[type="number"]:focus { outline: none; border-color: #6366f1; }
     input[type="number"]::-webkit-inner-spin-button,
     input[type="number"]::-webkit-outer-spin-button { opacity: 1; }
 
-    .coin-count {
-      font-size: 0.85rem;
-      color: #6b7280;
-      text-align: center;
-      font-variant-numeric: tabular-nums;
-    }
-
+    .coin-count { font-size: 0.85rem; color: #6b7280; text-align: center; font-variant-numeric: tabular-nums; }
     .coin-count.has-value { color: #374151; font-weight: 600; }
 
-    .coin-value {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: #d1d5db;
-      text-align: right;
-      font-variant-numeric: tabular-nums;
-      transition: color 0.2s;
+    .coin-value { font-size: 0.9rem; font-weight: 700; color: #d1d5db; text-align: right; font-variant-numeric: tabular-nums; }
+    .coin-value.has-value { color: #059669; }
+    .note-value.has-value { color: #0ea5e9; }
+
+    /* Totals */
+    .totals-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
     }
 
-    .coin-value.has-value { color: #059669; }
+    .subtotal-bar {
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
 
-    /* Total */
+    .subtotal-bar.coins { background: #f0f4ff; border: 1.5px solid #c7d2fe; }
+    .subtotal-bar.notes { background: #f0f9ff; border: 1.5px solid #bae6fd; }
+
+    .subtotal-label { font-size: 0.72rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+    .subtotal-value { font-size: 1.2rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .subtotal-bar.coins .subtotal-value { color: #4338ca; }
+    .subtotal-bar.notes .subtotal-value { color: #0284c7; }
+
     .total-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: #f0f4ff;
-      border: 1.5px solid #c7d2fe;
+      background: #1a1a2e;
       border-radius: 10px;
-      padding: 14px 16px;
+      padding: 14px 18px;
       margin-bottom: 12px;
     }
 
-    .total-label {
-      font-weight: 700;
-      color: #374151;
-      font-size: 0.9rem;
-    }
+    .total-label { font-weight: 700; color: #e5e7eb; font-size: 0.9rem; }
+    .total-label span { display: block; font-size: 0.72rem; font-weight: 400; color: #6b7280; }
+    .total-value { font-size: 1.8rem; font-weight: 800; color: #a5b4fc; font-variant-numeric: tabular-nums; }
 
-    .total-label span {
-      display: block;
-      font-size: 0.72rem;
-      font-weight: 400;
-      color: #9ca3af;
-    }
+    /* Buttons */
+    .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
 
-    .total-value {
-      font-size: 1.7rem;
-      font-weight: 800;
-      color: #4338ca;
-      font-variant-numeric: tabular-nums;
-    }
-
-    /* Reset */
-    #resetBtn {
-      width: 100%;
+    button {
       padding: 12px;
-      border: 1.5px solid #e5e7eb;
-      background: white;
       border-radius: 8px;
       font-size: 0.875rem;
       font-weight: 600;
-      color: #6b7280;
       cursor: pointer;
-      transition: background 0.15s, color 0.15s;
+      border: none;
       min-height: 44px;
+      transition: opacity 0.15s;
     }
 
-    #resetBtn:hover { background: #f9fafb; color: #374151; }
+    button:hover { opacity: 0.85; }
 
-    .signature {
-      margin-top: 20px;
+    #exportBtn { background: #6366f1; color: white; }
+    #resetBtn { background: #f3f4f6; color: #374151; border: 1.5px solid #e5e7eb; }
+
+    /* Signature */
+    .signature-bar {
+      width: 100%;
+      max-width: 640px;
       text-align: center;
+      padding: 18px 12px 24px;
+    }
+
+    .signature-name {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #4338ca;
+      letter-spacing: 0.04em;
+    }
+
+    .signature-sub {
       font-size: 0.78rem;
       color: #9ca3af;
-      letter-spacing: 0.03em;
+      margin-top: 2px;
     }
 
-    .signature strong { color: #6366f1; font-weight: 600; }
+    /* Divider */
+    .section-gap { margin-bottom: 20px; }
 
+    /* Responsive */
     @media (max-width: 400px) {
-      .container { padding: 20px 14px; }
-      h1 { font-size: 1.15rem; }
-      .table-header,
-      .coin-row { grid-template-columns: 50px 1fr 62px 62px; }
-      .total-value { font-size: 1.4rem; }
+      .container { padding: 18px 12px; }
+      .totals-grid { grid-template-columns: 1fr; }
+      .coins-row, .coins-header { grid-template-columns: 50px 1fr 54px 64px; }
+      .notes-row, .notes-header { grid-template-columns: 50px 1fr 64px; }
+      .total-value { font-size: 1.5rem; }
+    }
+
+    /* Print styles */
+    @media print {
+      body { background: white; padding: 0; }
+      .container { box-shadow: none; border-radius: 0; max-width: 100%; }
+      .btn-row, #exportBtn, #resetBtn { display: none; }
+      .signature-bar { padding-bottom: 10px; }
     }
   </style>
 </head>
 <body>
-<div class="container">
-  <h1>🪙 UK Coin Calculator</h1>
-  <p class="subtitle">Enter weight in grams — count and value update instantly</p>
 
-  <div class="table-header">
-    <span>Coin</span>
-    <span>Weight (g)</span>
-    <span>Count</span>
-    <span style="text-align:right">Value</span>
+<div class="container">
+  <h1>🪙 UK Cash Calculator</h1>
+  <p class="subtitle">Coins by weight (g) · Notes by quantity · Updates instantly</p>
+
+  <!-- COINS -->
+  <div class="section-gap">
+    <div class="section-title coins">Coins</div>
+    <div class="table-header coins-header">
+      <span>Coin</span>
+      <span>Weight (g)</span>
+      <span style="text-align:center">Count</span>
+      <span style="text-align:right">Value</span>
+    </div>
+    <div class="coin-grid" id="coinGrid"></div>
   </div>
 
-  <div class="coin-grid" id="coinGrid"></div>
+  <!-- NOTES -->
+  <div class="section-gap">
+    <div class="section-title notes">Notes</div>
+    <div class="table-header notes-header">
+      <span>Note</span>
+      <span>Quantity</span>
+      <span style="text-align:right">Value</span>
+    </div>
+    <div class="notes-grid" id="notesGrid"></div>
+  </div>
+
+  <!-- TOTALS -->
+  <div class="totals-grid">
+    <div class="subtotal-bar coins">
+      <div class="subtotal-label">Coins Total</div>
+      <div class="subtotal-value" id="coinsTotal">£0.00</div>
+    </div>
+    <div class="subtotal-bar notes">
+      <div class="subtotal-label">Notes Total</div>
+      <div class="subtotal-value" id="notesTotal">£0.00</div>
+    </div>
+  </div>
 
   <div class="total-bar">
     <div class="total-label">
-      Total Value
-      <span id="totalCoins">0 coins entered</span>
+      Grand Total
+      <span id="totalCoins">0 items</span>
     </div>
-    <div class="total-value" id="totalValue">£0.00</div>
+    <div class="total-value" id="grandTotal">£0.00</div>
   </div>
 
-  <button id="resetBtn">↺ Reset All</button>
+  <div class="btn-row">
+    <button id="exportBtn">⬇ Export PDF</button>
+    <button id="resetBtn">↺ Reset All</button>
+  </div>
+</div>
 
-  <div class="signature">Made by <strong>JeJo Barista Aylesbury</strong></div>
+<!-- SIGNATURE -->
+<div class="signature-bar">
+  <div class="signature-name">JeJo Barista · Aylesbury</div>
+  <div class="signature-sub">UK Cash Calculator</div>
 </div>
 
 <script>
@@ -240,75 +285,107 @@
     { label: '1p',  pence: 1,   weight: 3.56  },
   ];
 
-  const grid = document.getElementById('coinGrid');
+  const NOTES = [
+    { label: '£50', pence: 5000 },
+    { label: '£20', pence: 2000 },
+    { label: '£10', pence: 1000 },
+    { label: '£5',  pence: 500  },
+  ];
 
+  // Build coin rows
+  const coinGrid = document.getElementById('coinGrid');
   COINS.forEach((coin, i) => {
     const row = document.createElement('div');
-    row.className = 'coin-row';
-    row.id = `row${i}`;
+    row.className = 'coin-row coins-row';
+    row.id = `crow${i}`;
     row.innerHTML = `
-      <div class="coin-label">
-        ${coin.label}
-        <span>${coin.weight}g each</span>
-      </div>
-      <input type="number" id="g${i}" min="0" step="any" placeholder="0g">
-      <div class="coin-count" id="count${i}">—</div>
-      <div class="coin-value" id="val${i}">—</div>
+      <div class="coin-label">${coin.label}<span>${coin.weight}g</span></div>
+      <input type="number" id="cg${i}" min="0" step="any" placeholder="0g">
+      <div class="coin-count" id="ccount${i}">—</div>
+      <div class="coin-value" id="cval${i}">—</div>
     `;
-    grid.appendChild(row);
-
-    row.querySelector(`#g${i}`).addEventListener('input', recalculate);
+    coinGrid.appendChild(row);
+    row.querySelector(`#cg${i}`).addEventListener('input', recalculate);
   });
 
-  function formatValue(pence) {
+  // Build notes rows
+  const notesGrid = document.getElementById('notesGrid');
+  NOTES.forEach((note, i) => {
+    const row = document.createElement('div');
+    row.className = 'coin-row notes-row';
+    row.id = `nrow${i}`;
+    row.innerHTML = `
+      <div class="coin-label">${note.label}<span>note</span></div>
+      <input type="number" id="nq${i}" min="0" step="1" placeholder="0">
+      <div class="coin-value note-value" id="nval${i}">—</div>
+    `;
+    notesGrid.appendChild(row);
+    row.querySelector(`#nq${i}`).addEventListener('input', recalculate);
+  });
+
+  function fmt(pence) {
     if (pence === 0) return '—';
     return pence >= 100 ? `£${(pence / 100).toFixed(2)}` : `${pence}p`;
   }
 
+  function fmtTotal(pence) {
+    return pence >= 100 ? `£${(pence / 100).toFixed(2)}` : `${pence}p`;
+  }
+
   function recalculate() {
-    let totalPence = 0;
-    let totalCoins = 0;
+    let coinPence = 0, notePence = 0, totalItems = 0;
 
     COINS.forEach((coin, i) => {
-      const grams = parseFloat(document.getElementById(`g${i}`).value) || 0;
-      const countEl = document.getElementById(`count${i}`);
-      const valEl = document.getElementById(`val${i}`);
-      const row = document.getElementById(`row${i}`);
+      const g = parseFloat(document.getElementById(`cg${i}`).value) || 0;
+      const countEl = document.getElementById(`ccount${i}`);
+      const valEl   = document.getElementById(`cval${i}`);
+      const row     = document.getElementById(`crow${i}`);
 
-      if (grams > 0) {
-        const count = Math.round(grams / coin.weight);
-        const pence = count * coin.pence;
-        totalPence += pence;
-        totalCoins += count;
-
-        countEl.textContent = count;
-        countEl.className = 'coin-count has-value';
-        valEl.textContent = formatValue(pence);
-        valEl.className = 'coin-value has-value';
+      if (g > 0) {
+        const count = Math.round(g / coin.weight);
+        const p = count * coin.pence;
+        coinPence += p; totalItems += count;
+        countEl.textContent = count; countEl.className = 'coin-count has-value';
+        valEl.textContent = fmt(p);  valEl.className = 'coin-value has-value';
         row.classList.add('active');
       } else {
-        countEl.textContent = '—';
-        countEl.className = 'coin-count';
-        valEl.textContent = '—';
-        valEl.className = 'coin-value';
+        countEl.textContent = '—'; countEl.className = 'coin-count';
+        valEl.textContent = '—';   valEl.className = 'coin-value';
         row.classList.remove('active');
       }
     });
 
-    const total = totalPence >= 100
-      ? `£${(totalPence / 100).toFixed(2)}`
-      : `${totalPence}p`;
+    NOTES.forEach((note, i) => {
+      const qty = parseInt(document.getElementById(`nq${i}`).value) || 0;
+      const valEl = document.getElementById(`nval${i}`);
+      const row   = document.getElementById(`nrow${i}`);
 
-    document.getElementById('totalValue').textContent = totalPence > 0 ? total : '£0.00';
+      if (qty > 0) {
+        const p = qty * note.pence;
+        notePence += p; totalItems += qty;
+        valEl.textContent = fmt(p); valEl.className = 'coin-value note-value has-value';
+        row.classList.add('active');
+      } else {
+        valEl.textContent = '—'; valEl.className = 'coin-value note-value';
+        row.classList.remove('active');
+      }
+    });
+
+    document.getElementById('coinsTotal').textContent = fmtTotal(coinPence);
+    document.getElementById('notesTotal').textContent = fmtTotal(notePence);
+    document.getElementById('grandTotal').textContent = fmtTotal(coinPence + notePence);
     document.getElementById('totalCoins').textContent =
-      totalCoins > 0 ? `${totalCoins} coins total` : '0 coins entered';
+      totalItems > 0 ? `${totalItems} coins & notes` : '0 items';
   }
 
   document.getElementById('resetBtn').addEventListener('click', () => {
-    COINS.forEach((_, i) => {
-      document.getElementById(`g${i}`).value = '';
-    });
+    COINS.forEach((_, i) => document.getElementById(`cg${i}`).value = '');
+    NOTES.forEach((_, i) => document.getElementById(`nq${i}`).value = '');
     recalculate();
+  });
+
+  document.getElementById('exportBtn').addEventListener('click', () => {
+    window.print();
   });
 </script>
 </body>
