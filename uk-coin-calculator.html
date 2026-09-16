@@ -1,0 +1,2474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Cash Closing · JeJo Barista</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#F3E8D3;
+      --cream:#F4E9D2;
+      --cream-soft:#EFE3CA;
+      --parchment:#FBF5E9;
+      --card-bg:#FFFCF6;
+      --border:#E3D4BA;
+      --roast:#2B1608;
+      --tan:#D2B48C;
+      --caramel:#C4952A;
+      --caramel-ink:#8A5A12;
+      --text-dark:#3D1C02;
+      --text-mid:#6B3A2A;
+      --text-muted:#8A6A55;
+      --text-light:#A68B73;
+      --success:#2E7D4F;
+      --warning:#B5451B;
+      --danger:#B3261E;
+      --radius-sm:8px;
+      --radius-md:10px;
+      --radius-lg:16px;
+      --t-fast:.15s;
+      --t-base:.25s;
+      --t-slow:.45s;
+      --ease-out:cubic-bezier(.2,.8,.2,1);
+      --z-overlay:100;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{background:var(--bg)}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+      color:var(--text-dark);min-height:100vh;-webkit-font-smoothing:antialiased;
+    }
+    button,input,textarea{font-family:inherit}
+    .font-serif{font-family:'Fraunces',Georgia,'Times New Roman',serif}
+
+    .page-content{padding:22px 20px 10px}
+    .card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:0 1px 3px rgba(60,30,10,.05)}
+
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:7px;
+      min-height:40px;padding:0 15px;border-radius:var(--radius-md);
+      font-size:14px;font-weight:600;cursor:pointer;border:1px solid transparent;
+      transition:background var(--t-fast),border-color var(--t-fast),opacity var(--t-fast);
+      white-space:nowrap;
+    }
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .btn-primary{background:var(--roast);color:var(--parchment);border-color:var(--roast)}
+    .btn-primary:not(:disabled):hover{background:#3d2112}
+    .btn-secondary{background:var(--card-bg);color:var(--text-dark);border-color:var(--border)}
+    .btn-secondary:not(:disabled):hover{border-color:var(--caramel)}
+    .btn-ghost{background:transparent;color:var(--text-mid)}
+    .btn-ghost:not(:disabled):hover{background:rgba(107,58,42,.07)}
+    .btn-icon{
+      width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;
+      border-radius:var(--radius-sm);border:1px solid transparent;background:transparent;
+      color:var(--text-mid);cursor:pointer;
+    }
+    .btn-icon:hover{background:rgba(107,58,42,.08)}
+    .w-full{width:100%}
+
+    .form-group{margin-bottom:14px}
+    .form-group label{display:block;font-size:12px;font-weight:600;color:var(--text-mid);margin-bottom:5px}
+    .form-group input,.form-group textarea{
+      width:100%;height:42px;padding:0 11px;border:1px solid var(--border);
+      border-radius:var(--radius-sm);background:var(--card-bg);color:var(--text-dark);
+      font-size:15px;transition:border-color var(--t-fast);
+    }
+    .form-group textarea{height:auto;padding:10px 11px;resize:vertical;line-height:1.4}
+    .form-group input:focus,.form-group textarea:focus{outline:none;border-color:var(--caramel);box-shadow:0 0 0 3px rgba(196,149,42,.15)}
+    .form-group input::placeholder,.form-group textarea::placeholder{color:var(--text-light)}
+
+    .loading-center{display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--text-mid);font-size:13px}
+    .spinner{width:24px;height:24px;border-radius:50%;border:3px solid var(--border);border-top-color:var(--caramel);animation:spin 1s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .empty-state{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:30px 20px;color:var(--text-mid)}
+    .empty-state h4{font-size:15px;color:var(--text-dark);margin-top:6px}
+    .empty-state p{font-size:13px}
+
+    .dk-split{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:22px;align-items:start}
+    .dk-rail{position:sticky;top:16px}
+    .dk-tray-notes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+    .dk-tray-coins{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:8px}
+    .dk-slot{transition:transform var(--t-fast) var(--ease-out),box-shadow var(--t-fast)}
+    .dk-slot:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(60,30,10,.12)}
+    .dk-slot:focus-visible{outline:2px solid var(--caramel);outline-offset:2px}
+    @media (max-width:1100px){.dk-tray-coins{grid-template-columns:repeat(4,minmax(0,1fr))}}
+    @media (max-width:980px){.dk-split{grid-template-columns:minmax(0,1fr)}.dk-rail{position:static}}
+
+    .mobile-only{display:none}
+    .desktop-only{display:block}
+    .app-bar{display:none}
+    @media (max-width:768px){
+      .mobile-only{display:block}
+      .desktop-only{display:none}
+      .hide-on-mobile{display:none !important}
+      .page-content{padding:12px 12px 8px}
+      .app-bar{
+        display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:30;
+        background:var(--roast);color:var(--parchment);
+        padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;
+      }
+    }
+
+    .signature{text-align:center;padding:14px 12px 26px;font-size:12px;color:var(--text-muted)}
+    .signature a{color:var(--text-mid);font-weight:700;text-decoration:none;border-bottom:1.5px solid var(--tan)}
+    @media (max-width:768px){.signature{padding-bottom:110px}}
+
+    .toast-host{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:calc(100% - 32px);max-width:420px}
+    .toast{background:var(--roast);color:var(--parchment);padding:11px 16px;border-radius:var(--radius-md);font-size:13.5px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.25);animation:toastIn .25s var(--ease-out)}
+    .toast.warning{background:#8A4A12}
+    .toast.error{background:var(--danger)}
+    .toast.success{border-left:4px solid #7FD1A8}
+    @keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+    @media (min-width:769px){.toast-host{bottom:auto;top:20px}}
+
+    .boot{display:flex;align-items:center;justify-content:center;min-height:60vh;color:var(--text-mid);font-size:14px}
+  </style>
+</head>
+<body>
+<div id="root"><div class="boot">Loading the till…</div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+<!-- Visitor stats: https://jejo.goatcounter.com (change "jejo" if your GoatCounter code differs) -->
+<script data-goatcounter="https://jejo.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+
+<script type="text/babel" data-presets="react">
+const { useEffect, useMemo, useRef, useState } = React;
+
+// =============================================================
+// Cash Closing — standalone, single-file.
+//
+// The till count, the close against the day's printout, the till
+// roll and the period cash report, all in one page. Everything is
+// saved to this browser (localStorage) — there's no server — so
+// closings live on the device that recorded them.
+// =============================================================
+
+const BUSINESS_NAME = 'JeJo Barista · Aylesbury';
+const PORTFOLIO_URL = 'https://jejo8.github.io/port-folio/';
+
+// Counts an action (not just a visit) in GoatCounter. Silently does
+// nothing if the script is blocked or hasn't loaded yet.
+function track(path, title) {
+  try {
+    if (window.goatcounter && window.goatcounter.count) {
+      window.goatcounter.count({ path, title: title || path, event: true });
+    }
+  } catch (e) { /* stats are never worth breaking the till for */ }
+}
+
+// ── Storage ──────────────────────────────────────────────────
+const STORE_KEY    = 'ukCashClosingsV2';
+const LEGACY_KEY   = 'ukCashClosings';
+const SETTINGS_KEY = 'ukCashSettings';
+
+function readJSON(key, fallback) {
+  try { const v = JSON.parse(localStorage.getItem(key)); return v == null ? fallback : v; }
+  catch (e) { return fallback; }
+}
+function writeJSON(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); return true; }
+  catch (e) { return false; }
+}
+function loadSettings() { return readJSON(SETTINGS_KEY, {}); }
+function saveSetting(k, v) { writeJSON(SETTINGS_KEY, { ...loadSettings(), [k]: v }); }
+
+function newId() { return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`; }
+
+// ── Tiny date helpers (the subset of date-fns this page uses) ─
+const DAY_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const MON_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const pad2 = n => String(n).padStart(2, '0');
+function format(date, pattern) {
+  const d = date instanceof Date ? date : new Date(date);
+  const map = {
+    yyyy: String(d.getFullYear()),
+    MMM: MON_SHORT[d.getMonth()],
+    MM: pad2(d.getMonth() + 1),
+    EEE: DAY_SHORT[d.getDay()],
+    dd: pad2(d.getDate()),
+    d: String(d.getDate()),
+    HH: pad2(d.getHours()),
+    mm: pad2(d.getMinutes()),
+  };
+  return pattern.replace(/yyyy|MMM|MM|EEE|dd|d|HH|mm/g, t => map[t]);
+}
+function parseISO(s) { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); }
+function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
+function subDays(d, n) { return addDays(d, -n); }
+function startOfMonth(d) { return new Date(d.getFullYear(), d.getMonth(), 1); }
+function endOfMonth(d) { return new Date(d.getFullYear(), d.getMonth() + 1, 0); }
+function subMonths(d, n) { return new Date(d.getFullYear(), d.getMonth() - n, 1); }
+function formatDistanceToNow(d, { addSuffix } = {}) {
+  const s = Math.round((Date.now() - new Date(d).getTime()) / 1000);
+  const abs = Math.abs(s);
+  let txt;
+  if (abs < 45) txt = 'less than a minute';
+  else if (abs < 90) txt = '1 minute';
+  else if (abs < 2700) txt = `${Math.round(abs / 60)} minutes`;
+  else if (abs < 5400) txt = 'about 1 hour';
+  else if (abs < 86400) txt = `about ${Math.round(abs / 3600)} hours`;
+  else if (abs < 172800) txt = '1 day';
+  else if (abs < 2592000) txt = `${Math.round(abs / 86400)} days`;
+  else if (abs < 5184000) txt = 'about 1 month';
+  else if (abs < 31536000) txt = `${Math.round(abs / 2592000)} months`;
+  else txt = `about ${Math.round(abs / 31536000)} years`;
+  if (!addSuffix) return txt;
+  return s >= 0 ? `${txt} ago` : `in ${txt}`;
+}
+
+// ── Icons (inline, lucide-style) ─────────────────────────────
+function Icon({ size = 16, color = 'currentColor', style, children }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}
+      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+      style={{ flexShrink: 0, ...style }} aria-hidden="true">
+      {children}
+    </svg>
+  );
+}
+const Calculator = p => <Icon {...p}><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01"/></Icon>;
+const Save = p => <Icon {...p}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></Icon>;
+const RotateCcw = p => <Icon {...p}><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></Icon>;
+const FileDown = p => <Icon {...p}><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></Icon>;
+const Clock = p => <Icon {...p}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></Icon>;
+const UserIcon = p => <Icon {...p}><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></Icon>;
+const Trash2 = p => <Icon {...p}><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></Icon>;
+const History = p => <Icon {...p}><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></Icon>;
+const Receipt = p => <Icon {...p}><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/></Icon>;
+const ChevronRight = p => <Icon {...p}><path d="m9 18 6-6-6-6"/></Icon>;
+const ChevronLeft = p => <Icon {...p}><path d="m15 18-6-6 6-6"/></Icon>;
+const AlertCircle = p => <Icon {...p}><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></Icon>;
+const Share2 = p => <Icon {...p}><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></Icon>;
+
+// ── Toasts ───────────────────────────────────────────────────
+const toastBus = { push: () => {} };
+const toast = {
+  success: m => toastBus.push('success', m),
+  error:   m => toastBus.push('error', m),
+  warning: m => toastBus.push('warning', m),
+  info:    m => toastBus.push('info', m),
+};
+function ToastHost() {
+  const [items, setItems] = useState([]);
+  useEffect(() => {
+    toastBus.push = (kind, msg) => {
+      const id = newId();
+      setItems(prev => [...prev.slice(-2), { id, kind, msg }]);
+      setTimeout(() => setItems(prev => prev.filter(t => t.id !== id)), kind === 'info' ? 5000 : 2800);
+    };
+  }, []);
+  return (
+    <div className="toast-host" role="status" aria-live="polite">
+      {items.map(t => <div key={t.id} className={`toast ${t.kind}`}>{t.msg}</div>)}
+    </div>
+  );
+}
+
+// ── Sharing ──────────────────────────────────────────────────
+// The OS share sheet is the only way a web page can hand a file to
+// WhatsApp and friends. Where the browser can't share files, fall
+// back to a plain download.
+function canShareFiles() {
+  try {
+    if (!navigator.share || !navigator.canShare) return false;
+    const f = new File([new Blob(['x'], { type: 'application/pdf' })], 'x.pdf', { type: 'application/pdf' });
+    return navigator.canShare({ files: [f] });
+  } catch (e) { return false; }
+}
+function shareButtonLabel() { return canShareFiles() ? 'Share' : 'PDF'; }
+async function sharePdf({ blob, filename, title, summary, save }) {
+  if (canShareFiles()) {
+    try {
+      const file = new File([blob], filename, { type: 'application/pdf' });
+      await navigator.share({ files: [file], title, text: summary });
+      return 'shared';
+    } catch (e) {
+      if (e && e.name === 'AbortError') return 'cancelled';
+    }
+  }
+  save(filename);
+  return 'saved';
+}
+
+// ── Branded A4 PDF (the plain export) ────────────────────────
+function createBrandedPdf({ subtitle, meta = [], rightMeta = [] }) {
+  const doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+  const palette = { DARK: [43, 22, 8], TAN: [210, 180, 140], CREAM: [251, 245, 233], CARAMEL: [196, 149, 42] };
+  doc.setFillColor(...palette.DARK);
+  doc.rect(0, 0, 210, 28, 'F');
+  doc.setTextColor(...palette.CREAM);
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(14);
+  doc.text(BUSINESS_NAME.replace('·', '-'), 14, 12);
+  doc.setTextColor(...palette.TAN);
+  doc.setFontSize(8.5);
+  doc.text(subtitle, 14, 18);
+  doc.setFont('helvetica', 'normal');
+  meta.forEach((m, i) => doc.text(m, 14, 23 + i * 4));
+  rightMeta.forEach((m, i) => doc.text(m, 196, 12 + i * 5, { align: 'right' }));
+  const autoTable = opts => doc.autoTable({
+    theme: 'grid',
+    headStyles: { fillColor: palette.DARK, textColor: palette.CREAM, fontStyle: 'bold' },
+    footStyles: { fillColor: [244, 233, 210], textColor: [61, 28, 2], fontStyle: 'bold' },
+    styles: { fontSize: 9.5, lineColor: [227, 212, 186], lineWidth: 0.2, textColor: [61, 28, 2] },
+    alternateRowStyles: { fillColor: [251, 245, 233] },
+    margin: { left: 14, right: 14 },
+    ...opts,
+  });
+  const addFooter = () => {
+    const h = doc.internal.pageSize.getHeight();
+    doc.setDrawColor(...palette.TAN); doc.setLineWidth(0.3);
+    doc.line(14, h - 16, 196, h - 16);
+    doc.setTextColor(107, 58, 42); doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5);
+    doc.textWithLink(BUSINESS_NAME.replace('·', '-'), 105, h - 10, { align: 'center', url: PORTFOLIO_URL });
+  };
+  return { doc, autoTable, palette, addFooter };
+}
+
+// Coin specs — pence value + Royal Mint weight per coin in grams.
+// Order is denomination descending; matches how cashiers actually
+// sort piles into bags.
+// `perBag` is the standard UK coin-bag count the bank accepts —
+// £20 of £1s or £2s, £10 of 50p or 20p, £5 of 10p or 5p, £1 of 2p
+// or 1p. It drives the bagging ring on the coin tray: a nearly-full
+// ring means that pile is ready to bag for banking.
+const COINS = [
+  { key: 'coin_2pound', label: '£2',   pence: 200, weightG: 12.00, perBag:  10 },
+  { key: 'coin_1pound', label: '£1',   pence: 100, weightG:  8.75, perBag:  20 },
+  { key: 'coin_50p',    label: '50p',  pence: 50,  weightG:  8.00, perBag:  20 },
+  { key: 'coin_20p',    label: '20p',  pence: 20,  weightG:  5.00, perBag:  50 },
+  { key: 'coin_10p',    label: '10p',  pence: 10,  weightG:  6.50, perBag:  50 },
+  { key: 'coin_5p',     label: '5p',   pence:  5,  weightG:  3.25, perBag: 100 },
+  { key: 'coin_2p',     label: '2p',   pence:  2,  weightG:  7.12, perBag:  50 },
+  { key: 'coin_1p',     label: '1p',   pence:  1,  weightG:  3.56, perBag: 100 },
+];
+
+// Denomination carried by weight of colour, down the brown ramp.
+const NOTE_TONE = {
+  note_50: '#3D1C02', note_20: '#3D1C02',
+  note_10: '#6B3A2A', note_5:  '#6B3A2A',
+};
+
+// Whole bags and the remainder toward the next one.
+function bagState(count, perBag) {
+  if (!perBag || count <= 0) return { bags: 0, toward: 0, pct: 0 };
+  const bags = Math.floor(count / perBag);
+  const toward = count % perBag;
+  return { bags, toward, pct: toward / perBag };
+}
+
+const NOTES = [
+  { key: 'note_50', label: '£50', pence: 5000 },
+  { key: 'note_20', label: '£20', pence: 2000 },
+  { key: 'note_10', label: '£10', pence: 1000 },
+  { key: 'note_5',  label: '£5',  pence:  500 },
+];
+
+// Closings saved by the previous version of this page are carried
+// over once, read as legacy rows (no float check was possible).
+function loadClosings() {
+  const rows = readJSON(STORE_KEY, null);
+  if (Array.isArray(rows)) return rows;
+  const legacy = readJSON(LEGACY_KEY, []);
+  const migrated = (Array.isArray(legacy) ? legacy : []).map(rec => {
+    const ms = parseInt(String(rec.id || '').split('-')[0], 10);
+    const row = {
+      id: String(rec.id || newId()),
+      closed_at: new Date(Number.isFinite(ms) ? ms : Date.now()).toISOString(),
+      closed_by_name: rec.closedBy || null,
+      notes: rec.notes || null,
+      coins_pence: rec.coinsPence || 0,
+      notes_pence: rec.notesPence || 0,
+      total_pence: rec.totalPence || 0,
+      opening_float_pence: 0, cash_taken_pence: 0, cash_removed_pence: 0, card_sales_pence: 0,
+      count_basis: 'drawer',
+    };
+    [...COINS, ...NOTES].forEach(d => {
+      const hit = [...(rec.coinRows || []), ...(rec.noteRows || [])].find(r => r.label === d.label);
+      row[d.key] = hit ? hit.count || 0 : 0;
+    });
+    return row;
+  });
+  writeJSON(STORE_KEY, migrated);
+  return migrated;
+}
+function saveClosings(rows) { return writeJSON(STORE_KEY, rows); }
+
+// Format pence to a nice £-prefixed string. Values < £1 stay as
+// "30p" rather than "£0.30" — what staff actually write on the
+// banking slip.
+function fmtPence(p) {
+  if (!p || p <= 0) return '£0.00';
+  return p >= 100 ? `£${(p / 100).toFixed(2)}` : `${p}p`;
+}
+
+function fmtPenceShort(p) {
+  return `£${(p / 100).toFixed(2)}`;
+}
+
+// Grouped thousands. A single close rarely needs it; a month of them
+// always does — £14073.76 has to be counted, £14,073.76 is read.
+function fmtPenceGrouped(p) {
+  const neg = p < 0;
+  const v = Math.abs(p) / 100;
+  return `${neg ? '−' : ''}£${v.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+// Notes only ever come to whole pounds, so ".00" is noise.
+function fmtPoundsWhole(p) {
+  return `£${Math.round(p / 100)}`;
+}
+
+// Coins accept weight, count and value; notes are never weighed.
+function entryToCount(src, input, denom) {
+  const num = Number(input) || 0;
+  if (!(num > 0)) return 0;
+  // Weight is the only mode that rounds: a scale reading is
+  // approximate, so the nearest whole coin is the honest answer.
+  if (src === 'weight') return Math.round(num / denom.weightG);
+  // Count and value must never round UP — that would bank money the
+  // till doesn't hold. £5 of £2 coins is two coins, not three.
+  if (src === 'count')  return Math.max(0, Math.floor(num));
+  if (src === 'value')  return Math.max(0, Math.floor((num * 100 + 0.5) / denom.pence));
+  return 0;
+}
+
+// How many decimals each mode may take. Coins don't come in halves.
+const MODE_DECIMALS = { weight: 2, count: 0, value: 2 };
+
+// Pence typed in value mode, so the sheet can say what doesn't divide.
+function valueShortfall(src, input, denom) {
+  if (src !== 'value') return 0;
+  const typed = Math.max(0, Math.round((Number(input) || 0) * 100));
+  const used = entryToCount(src, input, denom) * denom.pence;
+  return Math.max(0, typed - used);
+}
+
+const CASH_MODES = {
+  weight: { label: 'Weigh', unit: 'g',  hint: d => `${d.weightG}g each · bag of ${d.perBag} = ${fmtPenceShort(d.pence * d.perBag)}` },
+  count:  { label: 'Count', unit: '',   hint: () => 'How many are in the pile' },
+  value:  { label: 'Value', unit: '£',  hint: () => 'What the pile is worth, in pounds' },
+};
+
+const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', '⌫'];
+
+// 2πr for the 25px coin ring.
+const RING_C = 157.08;
+
+// Empty wells are hollow and hatched.
+const HATCH = 'repeating-linear-gradient(45deg, rgba(107,58,42,0.05) 0 5px, transparent 5px 10px)';
+
+// Notes and coins share one column count so the tray reads as a
+// single drawer.
+const TRAY_COLS = 'repeat(4, minmax(0, 1fr))';
+
+// The verdict colours, for use ON the dark hero only.
+const ON_ROAST_OK   = '#7FD1A8';
+const ON_ROAST_WARN = '#F0A868';
+
+const PERIOD_PRESETS = [
+  { label: 'Last 7 days',  range: () => [format(subDays(new Date(), 6),  'yyyy-MM-dd'), format(new Date(), 'yyyy-MM-dd')] },
+  { label: 'Last 14 days', range: () => [format(subDays(new Date(), 13), 'yyyy-MM-dd'), format(new Date(), 'yyyy-MM-dd')] },
+  { label: 'This month',   range: () => [format(startOfMonth(new Date()), 'yyyy-MM-dd'), format(new Date(), 'yyyy-MM-dd')] },
+  { label: 'Last month',   range: () => {
+      const m = subMonths(new Date(), 1);
+      return [format(startOfMonth(m), 'yyyy-MM-dd'), format(endOfMonth(m), 'yyyy-MM-dd')];
+    } },
+];
+
+const SECTION_LABEL = {
+  fontSize: 11, fontWeight: 700, letterSpacing: '0.06em',
+  color: 'var(--text-mid)', textTransform: 'uppercase',
+};
+
+// ── Entry sheet: one denomination, its own keypad ─────────────
+function CashEntrySheet({ denom, isNote, row, onChange, onClose, nextLabel, onNext, variant = 'sheet' }) {
+  const [src, setSrc] = useState(row?.src || (isNote ? 'count' : 'weight'));
+  const [input, setInput] = useState(row?.input || '');
+
+  const isDialog = variant === 'dialog';
+
+  const modes = isNote ? ['count', 'value'] : ['weight', 'count', 'value'];
+  const count = entryToCount(src, input, denom);
+  const pence = count * denom.pence;
+  const bag = isNote ? { bags: 0, toward: 0, pct: 0 } : bagState(count, denom.perBag);
+  const shortfall = valueShortfall(src, input, denom);
+
+  const maxDecimals = MODE_DECIMALS[src];
+
+  function press(k) {
+    setInput(prev => {
+      if (k === '⌫') return prev.slice(0, -1);
+      if (k === '.') {
+        if (!maxDecimals) return prev;
+        return prev.includes('.') ? prev : (prev || '0') + '.';
+      }
+      const dot = prev.indexOf('.');
+      if (dot >= 0 && prev.length - dot - 1 >= maxDecimals) return prev;
+      if (prev.length >= 9) return prev;
+      return prev === '0' ? k : prev + k;
+    });
+  }
+
+  function pickMode(m) {
+    setSrc(m);
+    if (!MODE_DECIMALS[m]) setInput(prev => (prev.includes('.') ? prev.split('.')[0] : prev));
+  }
+
+  function commit(then) {
+    onChange(denom.key, src, input);
+    then();
+  }
+
+  // No dependency array on purpose: the handler closes over `src`
+  // and `input`, so it has to be re-bound on every render.
+  useEffect(() => {
+    function onKey(e) {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key === 'Escape') { e.preventDefault(); onClose(); return; }
+      if (e.key === 'Enter')  { e.preventDefault(); commit(onNext || onClose); return; }
+      if (e.key === 'Backspace') { e.preventDefault(); press('⌫'); return; }
+      if (e.key === '.' || e.key === ',') { e.preventDefault(); press('.'); return; }
+      if (/^[0-9]$/.test(e.key)) { e.preventDefault(); press(e.key); }
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 'var(--z-overlay)', background: 'rgba(30,20,10,0.45)',
+      display: 'flex',
+      flexDirection: isDialog ? 'row' : 'column',
+      justifyContent: isDialog ? 'center' : 'flex-end',
+      alignItems: isDialog ? 'center' : 'stretch',
+      padding: isDialog ? 20 : 0,
+    }}>
+      <button
+        onClick={onClose}
+        aria-label="Close"
+        style={isDialog
+          ? { position: 'absolute', inset: 0, border: 'none', background: 'none', cursor: 'pointer' }
+          : { flex: 1, border: 'none', background: 'none', cursor: 'pointer' }}
+      />
+      <div role="dialog" aria-label={`${denom.label} ${isNote ? 'notes' : 'pile'}`} style={isDialog ? {
+        position: 'relative', width: '100%', maxWidth: 430,
+        background: 'var(--bg)', borderRadius: 18,
+        boxShadow: '0 18px 48px rgba(30,20,10,0.28)',
+        padding: '18px 20px 20px',
+        maxHeight: 'calc(100vh - 40px)', overflowY: 'auto',
+      } : {
+        background: 'var(--bg)', borderTopLeftRadius: 20, borderTopRightRadius: 20,
+        boxShadow: '0 -12px 32px rgba(30,20,10,0.22)',
+        padding: '10px 16px calc(16px + env(safe-area-inset-bottom, 0px))',
+        maxHeight: '92vh', overflowY: 'auto',
+      }}>
+        {isDialog ? (
+          <div style={{ fontSize: 11.5, color: 'var(--text-mid)', marginBottom: 10 }}>
+            Type the number or use the pad · Enter saves · Esc closes
+          </div>
+        ) : (
+          <div style={{ width: 38, height: 4, borderRadius: 99, background: 'rgba(107,58,42,0.25)', margin: '0 auto 12px' }} />
+        )}
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+          {!isNote && (
+            <span style={{ position: 'relative', width: 50, height: 50, flexShrink: 0 }}>
+              <svg width="50" height="50" viewBox="0 0 58 58" style={{ display: 'block', transform: 'rotate(-90deg)' }}>
+                <circle cx="29" cy="29" r="25" fill="none" stroke="rgba(107,58,42,0.12)" strokeWidth="5" />
+                {bag.pct > 0 && (
+                  <circle
+                    cx="29" cy="29" r="25" fill="none" stroke="var(--caramel)" strokeWidth="5" strokeLinecap="round"
+                    strokeDasharray={`${bag.pct * RING_C} ${RING_C}`}
+                  />
+                )}
+              </svg>
+              <span style={{
+                position: 'absolute', inset: '12%', borderRadius: '50%', background: 'var(--parchment)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 12.5, fontWeight: 700, color: 'var(--text-dark)',
+              }}>
+                {denom.label}
+              </span>
+            </span>
+          )}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div className="font-serif" style={{ fontSize: 19, fontWeight: 700, color: 'var(--text-dark)' }}>
+              {denom.label} {isNote ? 'notes' : 'pile'}
+            </div>
+            <div style={{ fontSize: 12.5, color: 'var(--text-mid)', marginTop: 2 }}>
+              {isNote
+                ? CASH_MODES[src].hint(denom)
+                : `${denom.weightG}g each · ${bag.bags > 0
+                    ? `${bag.bags} bag${bag.bags === 1 ? '' : 's'} + ${bag.toward}`
+                    : `${bag.toward} of a ${denom.perBag}-coin bag`}`}
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+          {modes.map(m => {
+            const on = src === m;
+            return (
+              <button
+                key={m}
+                onClick={() => pickMode(m)}
+                aria-pressed={on}
+                style={{
+                  flex: 1, minWidth: 0, minHeight: 46, borderRadius: 'var(--radius-md)', cursor: 'pointer',
+                  fontSize: 13.5, fontWeight: 600,
+                  background: on ? 'var(--parchment)' : 'var(--card-bg)',
+                  color: 'var(--text-dark)',
+                  border: on ? '1.5px solid var(--caramel)' : '1px solid var(--border)',
+                }}
+              >
+                {CASH_MODES[m].label}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="card" style={{ padding: '14px 16px', marginBottom: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+            <span style={{
+              minWidth: 0, fontSize: 30, fontWeight: 700, color: 'var(--text-dark)',
+              fontVariantNumeric: 'tabular-nums', overflow: 'hidden', textOverflow: 'ellipsis',
+            }}>
+              {input || '0'}
+            </span>
+            <span style={{ fontSize: 15, color: 'var(--text-mid)', flexShrink: 0 }}>
+              {CASH_MODES[src].unit}
+            </span>
+            <span className="font-serif" style={{
+              marginLeft: 'auto', flexShrink: 0, fontSize: 22, fontWeight: 700,
+              color: 'var(--success)', fontVariantNumeric: 'tabular-nums',
+            }}>
+              {fmtPence(pence)}
+            </span>
+          </div>
+          {isNote && (
+            <div style={{ fontSize: 12.5, color: 'var(--text-mid)', marginTop: 9 }}>
+              {count} note{count === 1 ? '' : 's'}
+            </div>
+          )}
+
+          {shortfall > 0 && (
+            <div style={{
+              display: 'flex', alignItems: 'flex-start', gap: 7, marginTop: 10,
+              padding: '8px 10px', borderRadius: 'var(--radius-sm)',
+              background: 'rgba(181,69,27,0.08)', border: '1px solid rgba(181,69,27,0.35)',
+            }}>
+              <AlertCircle size={14} color="var(--warning)" style={{ marginTop: 1 }} />
+              <span style={{ fontSize: 12, color: 'var(--warning)', lineHeight: 1.4 }}>
+                {count === 0
+                  ? `${fmtPence(Math.round((Number(input) || 0) * 100))} is less than one ${denom.label} ${isNote ? 'note' : 'coin'} — saving ${fmtPence(pence)}.`
+                  : `${fmtPence(Math.round((Number(input) || 0) * 100))} isn’t whole ${denom.label} ${isNote ? 'notes' : 'coins'} — saving ${fmtPence(pence)} (${count}).`}
+              </span>
+            </div>
+          )}
+
+          {!isNote && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginTop: 11 }}>
+              <span style={{
+                flex: 1, height: 10, borderRadius: 99, background: 'var(--cream-soft)',
+                display: 'block', overflow: 'hidden',
+              }}>
+                <span style={{
+                  display: 'block', height: '100%', borderRadius: 99,
+                  width: `${Math.round(bag.pct * 100)}%`, background: 'var(--caramel)',
+                  transition: `width var(--t-base) var(--ease-out)`,
+                }} />
+              </span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-mid)', flexShrink: 0 }}>
+                {count} coin{count === 1 ? '' : 's'}
+              </span>
+            </div>
+          )}
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 12 }}>
+          {KEYS.map(k => (
+            <button
+              key={k}
+              onClick={() => press(k)}
+              disabled={k === '.' && !maxDecimals}
+              aria-label={k === '⌫' ? 'Delete' : k}
+              style={{
+                minHeight: isDialog ? 44 : 54, minWidth: 0, borderRadius: 'var(--radius-md)',
+                cursor: k === '.' && !maxDecimals ? 'default' : 'pointer',
+                fontSize: 21, fontWeight: 600, fontVariantNumeric: 'tabular-nums',
+                background: 'var(--card-bg)',
+                color: k === '.' && !maxDecimals ? 'var(--border)' : 'var(--text-dark)',
+                border: '1px solid var(--border)',
+              }}
+            >
+              {k}
+            </button>
+          ))}
+        </div>
+
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            onClick={() => setInput('')}
+            className="btn btn-secondary"
+            style={{ flex: 1, minHeight: 50 }}
+          >
+            Clear
+          </button>
+          <button
+            onClick={() => commit(onNext || onClose)}
+            style={{
+              flex: 2, minHeight: 50, borderRadius: 'var(--radius-md)', cursor: 'pointer',
+              fontSize: 14.5, fontWeight: 600,
+              background: 'var(--roast)', color: 'var(--tan)', border: '1px solid var(--roast)',
+            }}
+          >
+            {nextLabel ? `Save and next: ${nextLabel}` : 'Save'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Slip parts shared by the till roll and the cash report ────
+// Border triangles rather than clip-path or SVG: they're plain box
+// model, so html2canvas draws the torn edge into the PDF too.
+function Tear({ down }) {
+  const TOOTH = 8;
+  return (
+    <div aria-hidden="true" style={{ display: 'flex', overflow: 'hidden', lineHeight: 0 }}>
+      {Array.from({ length: 24 }, (_, i) => (
+        <span key={i} style={{
+          flex: '0 0 auto', width: 0, height: 0,
+          borderLeft: `${TOOTH}px solid transparent`,
+          borderRight: `${TOOTH}px solid transparent`,
+          ...(down ? { borderBottom: '7px solid var(--parchment)' } : { borderTop: '7px solid var(--parchment)' }),
+        }} />
+      ))}
+    </div>
+  );
+}
+const slipLine = (label, value, opts = {}) => (
+  <div style={{
+    display: 'flex', gap: 10, padding: '2px 0',
+    fontWeight: opts.bold ? 700 : 400,
+    color: opts.tone || 'var(--text-dark)',
+  }}>
+    <span style={{ flex: 1, minWidth: 0, letterSpacing: '0.02em' }}>{label}</span>
+    <span style={{ flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>{value}</span>
+  </div>
+);
+const slipSub = (label, value, tone) => (
+  <div style={{
+    display: 'flex', gap: 10, padding: '1px 0 3px 14px',
+    fontSize: 11, fontWeight: tone ? 700 : 400, color: tone || 'var(--text-mid)',
+  }}>
+    <span style={{ flex: 1, minWidth: 0 }}>{label}</span>
+    <span style={{ flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>{value}</span>
+  </div>
+);
+const slipHead = (t) => (
+  <div style={{ fontSize: 10.5, letterSpacing: '0.1em', color: 'var(--text-mid)', marginBottom: 4 }}>{t}</div>
+);
+const slipRule = () => <div style={{ borderTop: '1px dashed rgba(107,58,42,0.35)', margin: '8px 0' }} />;
+
+function SlipOverlay({ title, slipRef, children, onClose, onShare, busy }) {
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 'var(--z-overlay)', background: 'rgba(30,20,10,0.55)',
+      display: 'flex', flexDirection: 'column',
+    }}>
+      <div style={{
+        flexShrink: 0, background: 'var(--roast)', color: 'var(--parchment)',
+        padding: 'calc(12px + env(safe-area-inset-top, 0px)) 14px 12px', display: 'flex', alignItems: 'center', gap: 10,
+      }}>
+        <div className="font-serif" style={{ flex: 1, minWidth: 0, fontSize: 16, fontWeight: 700 }}>
+          {title}
+        </div>
+        <button
+          onClick={onClose}
+          aria-label="Close"
+          style={{
+            width: 44, height: 44, flexShrink: 0, borderRadius: 'var(--radius-sm)',
+            border: '1px solid rgba(210,180,140,0.35)', background: 'none',
+            color: 'var(--tan)', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20,
+          }}
+        >
+          ×
+        </button>
+      </div>
+
+      <div style={{ flex: 1, overflowY: 'auto', padding: '16px 14px 20px' }}>
+        <div ref={slipRef} style={{ maxWidth: 392, margin: '0 auto', background: 'var(--parchment)', padding: 16 }}>
+          <div style={{ background: '#fff' }}>
+            <Tear down={false} />
+            <div style={{
+              background: '#fff', padding: '10px 18px 14px',
+              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
+              fontSize: 12.5, lineHeight: 1.5, color: 'var(--text-dark)',
+            }}>
+              {children}
+            </div>
+            <Tear down />
+          </div>
+        </div>
+      </div>
+
+      <div style={{
+        flexShrink: 0, display: 'flex', gap: 10, padding: '10px 14px',
+        paddingBottom: 'calc(10px + env(safe-area-inset-bottom, 0px))',
+        background: 'var(--card-bg)', borderTop: '1px solid var(--border)',
+      }}>
+        <button onClick={onClose} className="btn btn-secondary" style={{ flex: 1, minHeight: 48 }}>
+          Close
+        </button>
+        {/* A phone's share sheet saves; a Mac's doesn't, so the
+            download is its own button on a desktop. */}
+        {canShareFiles() && (
+          <button
+            onClick={() => onShare(slipRef.current, 'save')}
+            disabled={busy}
+            className="btn btn-secondary hide-on-mobile"
+            style={{ flex: 1, minHeight: 48 }}
+          >
+            <FileDown size={15} /> {busy ? '…' : 'PDF'}
+          </button>
+        )}
+        <button
+          onClick={() => onShare(slipRef.current)}
+          disabled={busy}
+          className="btn btn-primary"
+          style={{ flex: 1.3, minHeight: 48 }}
+        >
+          {canShareFiles() ? <Share2 size={15} /> : <FileDown size={15} />}
+          {busy ? 'Working…' : shareButtonLabel()}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Till roll ─────────────────────────────────────────────────
+// A monospace slip, shaped like the handwritten one it replaces,
+// read back off the saved row so it says what was recorded.
+function TillRoll({ row, businessName, onClose, onShare, busy }) {
+  const slipRef = useRef(null);
+  const date = new Date(row.closed_at);
+  const counted = row.total_pence || 0;
+  const lifted = row.cash_removed_pence || 0;
+  const left = counted - lifted;
+  const expected = row.opening_float_pence || 0;
+  const floatVar = expected > 0 ? left - expected : null;
+  const cash = row.cash_taken_pence || 0;
+  const card = row.card_sales_pence || 0;
+  const liftVar = cash - lifted;
+
+  return (
+    <SlipOverlay title="Till roll" slipRef={slipRef} onClose={onClose} busy={busy}
+      onShare={(node, mode) => onShare(row, node, mode)}>
+      <div style={{ textAlign: 'center', marginBottom: 12, paddingTop: 4 }}>
+        <div style={{ fontWeight: 700, letterSpacing: '0.12em', fontSize: 13 }}>
+          {(businessName || 'CASH CLOSING').toUpperCase()}
+        </div>
+        <div style={{ marginTop: 5, letterSpacing: '0.08em' }}>CLOSE OF DAY</div>
+        <div style={{ marginTop: 3 }}>{format(date, 'EEE d MMM yyyy').toUpperCase()}</div>
+        <div>{format(date, 'HH:mm')}</div>
+      </div>
+
+      {slipRule()}
+      {slipHead('TAKINGS')}
+      {slipLine('CASH SALES', fmtPence(cash))}
+      {card > 0 && slipLine('CARD SALES', fmtPence(card))}
+      {card > 0 && slipLine('TOTAL', fmtPence(cash + card), { bold: true })}
+
+      {slipRule()}
+      {slipHead('THE DRAWER')}
+      {slipLine('NOTES', fmtPence(row.notes_pence || 0))}
+      {slipLine('COINS', fmtPence(row.coins_pence || 0))}
+      {slipLine('COUNTED IN TILL', fmtPence(counted), { bold: true })}
+      {slipLine('CASH LIFTED', `-${fmtPence(lifted)}`)}
+      {liftVar !== 0 && slipSub(
+        liftVar > 0 ? 'rounded down, left behind' : 'rounded up, taken as well',
+        `${liftVar > 0 ? '+' : '−'}${fmtPence(Math.abs(liftVar))}`,
+        liftVar > 0 ? 'var(--success)' : 'var(--warning)',
+      )}
+      {slipLine('FLOAT LEFT', fmtPence(left), { bold: true })}
+
+      {expected > 0 && (
+        <>
+          {slipRule()}
+          {slipHead('THE CHECK')}
+          {slipLine('EXPECTED FLOAT', fmtPence(expected))}
+          {slipLine('FLOAT LEFT', fmtPence(left))}
+          {slipLine(
+            floatVar === 0 ? 'BALANCED' : floatVar > 0 ? 'OVER' : 'SHORT',
+            floatVar === 0 ? 'SPOT ON' : fmtPence(Math.abs(floatVar)),
+            { bold: true, tone: floatVar === 0 ? 'var(--success)' : 'var(--warning)' },
+          )}
+        </>
+      )}
+
+      {slipRule()}
+      <div style={{ fontSize: 11, marginTop: 4 }}>
+        {slipHead('DENOMINATIONS')}
+        {[...NOTES, ...COINS].filter(d => row[d.key] > 0).map(d => (
+          <div key={d.key} style={{ display: 'flex', gap: 10 }}>
+            <span style={{ width: 42, flexShrink: 0 }}>{d.label}</span>
+            <span style={{ flex: 1, minWidth: 0 }}>× {row[d.key]}</span>
+            <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtPence(row[d.key] * d.pence)}</span>
+          </div>
+        ))}
+      </div>
+
+      {row.notes && (
+        <>
+          {slipRule()}
+          {slipHead('NOTE')}
+          <div style={{ fontSize: 11.5, whiteSpace: 'pre-wrap' }}>{row.notes}</div>
+        </>
+      )}
+
+      {slipRule()}
+      {slipLine('COUNTED BY', (row.closed_by_name || 'UNKNOWN').toUpperCase(), { bold: true })}
+      {slipLine('REF', `CL-${format(date, 'yyyyMMdd-HHmm')}`, { tone: 'var(--text-mid)' })}
+    </SlipOverlay>
+  );
+}
+
+// ── Period cash report ────────────────────────────────────────
+// A range answers what a single close can't: how much cash went to
+// the bank, whether the till is drifting, and which nights nobody
+// closed at all.
+function PeriodRoll({ rows, from, to, businessName, onClose, onShare, busy }) {
+  const slipRef = useRef(null);
+
+  const rec = rows.filter(r => r.count_basis === 'reconciled');
+  const legacy = rows.length - rec.length;
+
+  const lifted  = rows.reduce((t, r) => t + (r.cash_removed_pence || 0), 0);
+  const cash    = rows.reduce((t, r) => t + (r.cash_taken_pence || 0), 0);
+  const card    = rows.reduce((t, r) => t + (r.card_sales_pence || 0), 0);
+
+  const checked = rec.filter(r => (r.opening_float_pence || 0) > 0);
+  const varOf = r => ((r.total_pence || 0) - (r.cash_removed_pence || 0)) - (r.opening_float_pence || 0);
+  const netVar = checked.reduce((t, r) => t + varOf(r), 0);
+  const shortDays = checked.filter(r => varOf(r) < 0).length;
+  const overDays  = checked.filter(r => varOf(r) > 0).length;
+  const roundKept = rec.reduce((t, r) => t + ((r.cash_taken_pence || 0) - (r.cash_removed_pence || 0)), 0);
+
+  const closedDates = new Set(rows.map(r => format(new Date(r.closed_at), 'yyyy-MM-dd')));
+  const missing = [];
+  for (let d = parseISO(from); d <= parseISO(to); d = addDays(d, 1)) {
+    if (!closedDates.has(format(d, 'yyyy-MM-dd'))) missing.push(d);
+  }
+
+  const byDay = [...rows].sort((a, b) => new Date(a.closed_at) - new Date(b.closed_at));
+  const num = p => (Math.abs(p) / 100).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  return (
+    <SlipOverlay title="Cash report" slipRef={slipRef} onClose={onClose} onShare={onShare} busy={busy}>
+      <div style={{ textAlign: 'center', marginBottom: 12, paddingTop: 4 }}>
+        <div style={{ fontWeight: 700, letterSpacing: '0.12em', fontSize: 13 }}>
+          {(businessName || 'CASH CLOSING').toUpperCase()}
+        </div>
+        <div style={{ marginTop: 5, letterSpacing: '0.08em' }}>CASH REPORT</div>
+        <div style={{ marginTop: 3 }}>
+          {format(parseISO(from), 'd MMM').toUpperCase()} – {format(parseISO(to), 'd MMM yyyy').toUpperCase()}
+        </div>
+      </div>
+
+      {slipRule()}
+      {slipHead('BANKING')}
+      {slipLine('CASH LIFTED', fmtPenceGrouped(lifted), { bold: true })}
+      {slipLine('CLOSES', String(rows.length))}
+
+      {slipRule()}
+      {slipHead('TAKINGS')}
+      {slipLine('CASH SALES', fmtPenceGrouped(cash))}
+      {card > 0 && slipLine('CARD SALES', fmtPenceGrouped(card))}
+      {card > 0 && slipLine('TOTAL', fmtPenceGrouped(cash + card), { bold: true })}
+
+      {slipRule()}
+      {slipHead('THE CHECK')}
+      {checked.length > 0 ? (
+        <>
+          {slipLine(
+            netVar === 0 ? 'NET VARIANCE' : netVar < 0 ? 'NET SHORT' : 'NET OVER',
+            netVar === 0 ? 'LEVEL' : fmtPenceGrouped(Math.abs(netVar)),
+            { bold: true, tone: netVar === 0 ? 'var(--success)' : 'var(--warning)' },
+          )}
+          {slipSub('nights short', String(shortDays))}
+          {slipSub('nights over', String(overDays))}
+          {slipSub('nights level', String(checked.length - shortDays - overDays))}
+          {roundKept !== 0 && slipLine(
+            roundKept > 0 ? 'ROUNDING LEFT BEHIND' : 'ROUNDING OVER-LIFTED',
+            `${roundKept > 0 ? '+' : '−'}${fmtPenceGrouped(Math.abs(roundKept))}`,
+            { tone: roundKept > 0 ? 'var(--success)' : 'var(--warning)' },
+          )}
+        </>
+      ) : (
+        <div style={{ fontSize: 11, color: 'var(--text-mid)' }}>
+          No closes in this window carry a float check.
+        </div>
+      )}
+      {slipLine('NO CLOSE RECORDED', `${missing.length} day${missing.length === 1 ? '' : 's'}`)}
+      {missing.length > 0 && missing.length <= 10 && (
+        <div style={{ fontSize: 11, color: 'var(--text-mid)', padding: '1px 0 3px 14px' }}>
+          {missing.map(d => format(d, 'd MMM')).join(', ')}
+        </div>
+      )}
+
+      {slipRule()}
+      {slipHead('DAY BY DAY')}
+      <div style={{ fontSize: 10.5 }}>
+        <div style={{ display: 'flex', gap: 6, color: 'var(--text-mid)', paddingBottom: 2 }}>
+          <span style={{ width: 46, flexShrink: 0 }}>DATE</span>
+          <span style={{ flex: 1, textAlign: 'right' }}>COUNTED</span>
+          <span style={{ flex: 1, textAlign: 'right' }}>LIFTED</span>
+          <span style={{ width: 54, textAlign: 'right', flexShrink: 0 }}>VAR</span>
+        </div>
+        {byDay.map(r => {
+          const v = r.count_basis === 'reconciled' && (r.opening_float_pence || 0) > 0 ? varOf(r) : null;
+          return (
+            <div key={r.id} style={{ display: 'flex', gap: 6, padding: '1px 0' }}>
+              <span style={{ width: 46, flexShrink: 0 }}>{format(new Date(r.closed_at), 'dd MMM').toUpperCase()}</span>
+              <span style={{ flex: 1, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{num(r.total_pence || 0)}</span>
+              <span style={{ flex: 1, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{num(r.cash_removed_pence || 0)}</span>
+              <span style={{
+                width: 54, textAlign: 'right', flexShrink: 0, fontVariantNumeric: 'tabular-nums',
+                color: v === null ? 'var(--text-mid)' : v === 0 ? 'var(--success)' : 'var(--warning)',
+              }}>
+                {v === null ? '—' : `${v > 0 ? '+' : v < 0 ? '−' : ''}${num(Math.abs(v))}`}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      {legacy > 0 && (
+        <div style={{ fontSize: 10.5, color: 'var(--text-mid)', marginTop: 7 }}>
+          {legacy} close{legacy === 1 ? '' : 's'} predate{legacy === 1 ? 's' : ''} the
+          {' '}current close and carr{legacy === 1 ? 'ies' : 'y'} no float check.
+        </div>
+      )}
+
+      {slipRule()}
+      {slipLine('REF', `CR-${format(parseISO(from), 'yyyyMMdd')}-${format(parseISO(to), 'yyyyMMdd')}`, { tone: 'var(--text-mid)' })}
+    </SlipOverlay>
+  );
+}
+
+// ── Cash report range picker (shared) ─────────────────────────
+function PeriodPicker({ periodFrom, setPeriodFrom, periodTo, setPeriodTo, onOpenPeriod, periodLoading, compact }) {
+  return (
+    <>
+      <div style={{ ...SECTION_LABEL, marginBottom: 9 }}>Cash report</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+        <div className="form-group" style={{ marginBottom: 0, minWidth: 0 }}>
+          <label>From</label>
+          <input type="date" value={periodFrom} max={periodTo}
+            onChange={e => setPeriodFrom(e.target.value)}
+            style={compact ? undefined : { height: 48, fontSize: 16 }} />
+        </div>
+        <div className="form-group" style={{ marginBottom: 0, minWidth: 0 }}>
+          <label>To</label>
+          <input type="date" value={periodTo} min={periodFrom}
+            onChange={e => setPeriodTo(e.target.value)}
+            style={compact ? undefined : { height: 48, fontSize: 16 }} />
+        </div>
+      </div>
+      <div style={{ display: 'flex', gap: compact ? 6 : 7, marginTop: 10, flexWrap: 'wrap' }}>
+        {PERIOD_PRESETS.map(preset => (
+          <button
+            key={preset.label}
+            onClick={() => { const [a, b] = preset.range(); setPeriodFrom(a); setPeriodTo(b); }}
+            style={{
+              minHeight: compact ? 32 : 44, padding: compact ? '0 11px' : '0 13px', borderRadius: 99, cursor: 'pointer',
+              fontSize: compact ? 12 : 13, fontWeight: 600, background: 'var(--card-bg)',
+              color: 'var(--text-mid)', border: '1px solid var(--border)',
+            }}
+          >
+            {preset.label}
+          </button>
+        ))}
+      </div>
+      <button
+        onClick={onOpenPeriod}
+        disabled={periodLoading}
+        className="btn btn-secondary w-full"
+        style={{ minHeight: compact ? 40 : 48, marginTop: 11 }}
+      >
+        <Receipt size={compact ? 14 : 15} /> {periodLoading ? 'Loading…' : 'Cash report for this range'}
+      </button>
+    </>
+  );
+}
+
+// ── Mobile closing history ────────────────────────────────────
+function MobileClosingHistory({ recent, loading, canDelete, onDelete, onTillRoll }) {
+  const [openId, setOpenId] = useState(null);
+
+  if (loading) {
+    return (
+      <div className="loading-center" style={{ padding: 32 }}>
+        <div className="spinner" />
+        <p>Loading…</p>
+      </div>
+    );
+  }
+
+  if (!recent.length) {
+    return (
+      <div className="card empty-state" style={{ padding: '32px 20px' }}>
+        <Calculator size={34} color="var(--text-muted)" />
+        <h4>No closings yet</h4>
+        <p>Count the till and save — it'll show up here.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      {recent.map(r => {
+        const date = new Date(r.closed_at);
+        const open = openId === r.id;
+        const basis = r.count_basis === 'reconciled' ? 'reconciled'
+                    : r.count_basis === 'float' ? 'float' : 'drawer';
+        const cash = basis === 'drawer'
+          ? Math.max(0, (r.total_pence || 0) - (r.opening_float_pence || 0))
+          : (r.cash_taken_pence || 0);
+        const takings = cash > 0 || (r.card_sales_pence || 0) > 0;
+        const carried = basis === 'reconciled'
+          ? (r.total_pence || 0) - (r.cash_removed_pence || 0)
+          : null;
+        const variance =
+            basis === 'reconciled' && (r.opening_float_pence || 0) > 0 ? carried - (r.opening_float_pence || 0)
+          : basis === 'float' && (r.opening_float_pence || 0) > 0 ? (r.total_pence || 0) - (r.opening_float_pence || 0)
+          : null;
+        const lift = basis === 'reconciled'
+          ? (r.cash_taken_pence || 0) - (r.cash_removed_pence || 0)
+          : null;
+        return (
+          <div key={r.id} className="card" style={{ padding: 0, overflow: 'hidden', marginBottom: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'stretch' }}>
+              <button
+                onClick={() => setOpenId(open ? null : r.id)}
+                aria-expanded={open}
+                style={{
+                  flex: 1, minWidth: 0, minHeight: 64, display: 'flex', alignItems: 'center', gap: 12,
+                  padding: '12px 4px 12px 15px', background: 'none', border: 'none',
+                  textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit',
+                }}
+              >
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{
+                    display: 'block', fontSize: 17, fontWeight: 700,
+                    fontVariantNumeric: 'tabular-nums',
+                    color: variance === null ? 'var(--text-dark)'
+                         : variance === 0 ? 'var(--success)' : 'var(--warning)',
+                  }}>
+                    {variance === null
+                      ? fmtPence(r.total_pence)
+                      : variance === 0 ? 'Balanced'
+                      : `${fmtPence(Math.abs(variance))} ${variance < 0 ? 'short' : 'over'}`}
+                  </span>
+                  <span style={{
+                    display: 'block', fontSize: 12, color: 'var(--text-mid)', marginTop: 3,
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                  }}>
+                    {format(date, 'EEE d MMM, HH:mm')} · {r.closed_by_name || 'Unknown'}
+                  </span>
+                </span>
+                <span style={{
+                  flexShrink: 0, width: 30, display: 'flex', justifyContent: 'center',
+                  color: 'var(--text-muted)',
+                  transform: open ? 'rotate(90deg)' : 'none',
+                  transition: `transform var(--t-fast) var(--ease-out)`,
+                }}>
+                  <ChevronRight size={16} />
+                </span>
+              </button>
+              {canDelete && (
+                <button
+                  onClick={() => onDelete(r.id)}
+                  aria-label={`Delete closing from ${format(date, 'd MMM')}`}
+                  style={{
+                    width: 48, flexShrink: 0, background: 'none', border: 'none',
+                    borderLeft: '1px solid var(--border)', cursor: 'pointer',
+                    color: 'var(--danger)', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center',
+                  }}
+                >
+                  <Trash2 size={15} />
+                </button>
+              )}
+            </div>
+
+            {open && (
+              <div style={{ padding: '0 15px 13px', borderTop: '1px solid var(--border)' }}>
+                {takings && (
+                  <div style={{ display: 'flex', gap: 8, margin: '11px 0 3px', fontSize: 12, color: 'var(--text-mid)' }}>
+                    <span style={{ flex: 1, minWidth: 0 }}>{basis === 'float' ? 'Float' : 'Drawer'} {fmtPenceShort(r.total_pence || 0)}</span>
+                    <span style={{ flex: 1, minWidth: 0 }}>Cash {fmtPenceShort(cash)}</span>
+                    <span style={{ flex: 1, minWidth: 0 }}>Card {fmtPenceShort(r.card_sales_pence || 0)}</span>
+                  </div>
+                )}
+                {basis === 'reconciled' && (
+                  <>
+                    <div style={{ display: 'flex', gap: 8, marginTop: 2, fontSize: 12, color: 'var(--text-mid)' }}>
+                      <span style={{ flex: 1, minWidth: 0 }}>Lifted {fmtPenceShort(r.cash_removed_pence || 0)}</span>
+                      <span style={{ flex: 1, minWidth: 0 }}>Left {fmtPenceShort(carried || 0)}</span>
+                      <span style={{ flex: 1, minWidth: 0 }}>Float {fmtPenceShort(r.opening_float_pence || 0)}</span>
+                    </div>
+                    {lift !== 0 && (
+                      <div style={{
+                        marginTop: 7, fontSize: 11.5, fontWeight: 600,
+                        color: lift > 0 ? 'var(--success)' : 'var(--warning)',
+                      }}>
+                        {lift > 0
+                          ? `${fmtPenceShort(lift)} of the day's cash stayed in the drawer`
+                          : `${fmtPenceShort(Math.abs(lift))} more was lifted than the day took`}
+                      </div>
+                    )}
+                    <button
+                      onClick={() => onTillRoll(r)}
+                      className="btn btn-secondary w-full"
+                      style={{ minHeight: 44, marginTop: 11 }}
+                    >
+                      <Receipt size={14} /> Till roll
+                    </button>
+                  </>
+                )}
+                {basis === 'float' && (
+                  <div style={{ marginTop: 9, fontSize: 11.5, color: 'var(--text-mid)', fontStyle: 'italic' }}>
+                    These denominations are the float only — the takings had
+                    already been lifted before the count.
+                  </div>
+                )}
+                {basis === 'drawer' && (
+                  <div style={{ marginTop: 9, fontSize: 11.5, color: 'var(--text-mid)', fontStyle: 'italic' }}>
+                    Saved by the older calculator, so there's no printout
+                    figure to check the float against.
+                  </div>
+                )}
+                <div style={{ marginTop: 11 }}>
+                  {[...NOTES, ...COINS].filter(d => r[d.key] > 0).map(d => (
+                    <div key={d.key} style={{
+                      display: 'flex', alignItems: 'center', gap: 10, padding: '5px 0',
+                      fontSize: 13, color: 'var(--text-mid)',
+                    }}>
+                      <span style={{ width: 46, flexShrink: 0, fontWeight: 600, color: 'var(--text-dark)' }}>{d.label}</span>
+                      <span style={{ flex: 1, minWidth: 0 }}>× {r[d.key]}</span>
+                      <span style={{ fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{fmtPenceShort(r[d.key] * d.pence)}</span>
+                    </div>
+                  ))}
+                </div>
+                {r.notes && (
+                  <div style={{
+                    marginTop: 9, padding: '8px 11px', borderRadius: 'var(--radius-sm)',
+                    background: 'var(--parchment)', fontSize: 12.5,
+                    fontStyle: 'italic', color: 'var(--text-muted)',
+                  }}>
+                    “{r.notes}”
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── The drawer tray (shared by both layouts) ─────────────────
+function DrawerTray({ noteTiles, coinWells, setOpenKey, big }) {
+  return (
+    <div className="card" style={{ padding: big ? '14px 12px' : '11px 9px', marginBottom: 9 }}>
+      <div className={big ? 'dk-tray-notes' : undefined}
+        style={big ? undefined : { display: 'grid', gridTemplateColumns: TRAY_COLS, gap: 6 }}>
+        {noteTiles.map(n => {
+          const filled = n.count > 0;
+          return (
+            <button
+              key={n.key}
+              className={big ? 'dk-slot' : undefined}
+              onClick={() => setOpenKey(n.key)}
+              aria-label={`${n.label} notes: ${filled ? `${n.count}, ${fmtPence(n.rowPence)}` : 'not counted'}`}
+              style={{
+                minWidth: 0, minHeight: big ? 116 : 92, padding: 0, cursor: 'pointer', overflow: 'hidden',
+                display: 'flex', flexDirection: 'column',
+                borderRadius: 'var(--radius-sm)', textAlign: 'left',
+                background: filled ? NOTE_TONE[n.key] : 'transparent',
+                backgroundImage: filled ? 'none' : HATCH,
+                border: filled ? '1px solid transparent' : '1px dashed rgba(107,58,42,0.28)',
+                color: filled ? 'var(--parchment)' : 'var(--text-mid)',
+              }}
+            >
+              {/* The darker band is the fold — a note lying in the slot. */}
+              <span style={{
+                height: big ? 16 : 13, flexShrink: 0,
+                background: filled ? 'rgba(0,0,0,0.22)' : 'transparent',
+                borderBottom: filled ? 'none' : '1px dashed rgba(107,58,42,0.20)',
+              }} />
+              <span style={{
+                flex: 1, minWidth: 0, padding: big ? '9px 12px 10px' : '7px 8px 8px',
+                display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: big ? 3 : 2,
+              }}>
+                <span className="font-serif" style={{ fontSize: big ? 19 : 16, fontWeight: 700, lineHeight: 1.1 }}>
+                  {n.label}
+                </span>
+                <span style={{
+                  fontSize: big ? 15 : 12.5, fontWeight: 700, fontVariantNumeric: 'tabular-nums',
+                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                }}>
+                  {filled ? fmtPoundsWhole(n.rowPence) : '—'}
+                </span>
+                <span style={{ fontSize: big ? 11.5 : 10.5, opacity: filled ? 0.8 : 1, lineHeight: 1.2 }}>
+                  {filled ? `×${n.count}` : 'empty'}
+                </span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      <div style={{ height: 1, background: 'rgba(107,58,42,0.14)', margin: big ? '12px 2px' : '10px 2px' }} />
+
+      <div className={big ? 'dk-tray-coins' : undefined}
+        style={big ? undefined : { display: 'grid', gridTemplateColumns: TRAY_COLS, gap: '9px 6px' }}>
+        {coinWells.map(c => {
+          const { bags, pct: bagPct } = bagState(c.count, c.perBag);
+          const filled = c.count > 0;
+          return (
+            <button
+              key={c.key}
+              className={big ? 'dk-slot' : undefined}
+              onClick={() => setOpenKey(c.key)}
+              aria-label={`${c.label}: ${filled ? `${c.count} coins, ${fmtPence(c.rowPence)}` : 'not counted'}`}
+              style={{
+                minWidth: 0, minHeight: big ? 128 : 104, padding: big ? '9px 4px 10px' : '7px 2px 8px', cursor: 'pointer',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: big ? 5 : 4,
+                borderRadius: 'var(--radius-sm)',
+                background: filled ? 'var(--cream)' : 'transparent',
+                border: `1px ${filled ? 'solid' : 'dashed'} rgba(107,58,42,${filled ? 0.14 : 0.28})`,
+                backgroundImage: filled ? 'none' : HATCH,
+              }}
+            >
+              <span style={{ position: 'relative', display: 'block', width: '100%', maxWidth: big ? 58 : 56, aspectRatio: '1 / 1' }}>
+                <svg viewBox="0 0 58 58" style={{ display: 'block', width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
+                  <circle cx="29" cy="29" r="25" fill="none" stroke="rgba(107,58,42,0.12)" strokeWidth="5" />
+                  {filled && bagPct > 0 && (
+                    <circle
+                      cx="29" cy="29" r="25" fill="none" stroke="var(--caramel)" strokeWidth="5" strokeLinecap="round"
+                      strokeDasharray={`${bagPct * RING_C} ${RING_C}`}
+                      style={{ transition: `stroke-dasharray var(--t-base) var(--ease-out)` }}
+                    />
+                  )}
+                </svg>
+                <span style={{
+                  position: 'absolute', inset: '12%', borderRadius: '50%',
+                  background: filled ? 'var(--parchment)' : 'transparent',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: big ? 13 : 12.5, fontWeight: 700,
+                  color: filled ? 'var(--text-dark)' : 'var(--text-mid)',
+                }}>
+                  {c.label}
+                </span>
+              </span>
+              <span style={{
+                fontSize: big ? 13 : 12.5, fontWeight: 700, fontVariantNumeric: 'tabular-nums',
+                color: filled ? 'var(--text-dark)' : 'var(--text-mid)',
+                maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+              }}>
+                {filled ? fmtPence(c.rowPence) : '—'}
+              </span>
+              <span style={{
+                fontSize: big ? 11 : 10.5, color: 'var(--text-mid)', lineHeight: 1.2,
+                maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+              }}>
+                {filled ? `${c.count}×` : 'empty'}
+              </span>
+              {/* Always rendered so every well is the same height. */}
+              <span style={{
+                fontSize: big ? 10.5 : 10, fontWeight: 600, color: 'var(--caramel-ink)', lineHeight: 1.2,
+                height: big ? 13 : 12, maxWidth: '100%', overflow: 'hidden', whiteSpace: 'nowrap',
+              }}>
+                {filled && bags > 0 ? `${bags} bag${bags === 1 ? '' : 's'}` : ''}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function SplitBar({ splitBands, totalSalesPence, big }) {
+  return (
+    <div style={{ marginTop: big ? 13 : 12, paddingTop: big ? 13 : 12, borderTop: '1px solid var(--border)' }}>
+      <div style={{ display: 'flex', height: big ? 28 : 26, borderRadius: 'var(--radius-sm)', overflow: 'hidden', marginBottom: 10 }}>
+        {splitBands.map(s => (
+          <span key={s.key} style={{
+            width: `${s.pct}%`, background: s.fill, minWidth: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: big ? 11 : 10.5, fontWeight: 700, color: s.fg, overflow: 'hidden',
+            transition: `width var(--t-slow) var(--ease-out)`, whiteSpace: 'nowrap',
+          }}>
+            {big
+              ? (s.pct >= 12 ? `${s.short} ${fmtPenceGrouped(s.pence)}` : '')
+              : (s.pct >= 16 ? s.short : '')}
+          </span>
+        ))}
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+        <span style={{ flex: 1, minWidth: 0, fontSize: 13, fontWeight: 600, color: 'var(--text-dark)' }}>
+          Total takings
+        </span>
+        <span className="font-serif" style={{
+          fontSize: big ? 19 : 18, fontWeight: 700, color: 'var(--caramel-ink)', fontVariantNumeric: 'tabular-nums',
+        }}>
+          {fmtPenceGrouped(totalSalesPence)}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function FloatLeftCell({ floatLeftPence, height }) {
+  return (
+    <div style={{ minWidth: 0 }}>
+      <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-mid)', marginBottom: 5 }}>
+        Float left
+      </label>
+      <div style={{
+        height, borderRadius: 'var(--radius-sm)',
+        background: 'var(--parchment)', border: '1px solid var(--border)',
+        display: 'flex', alignItems: 'center', padding: '0 11px',
+      }}>
+        <span className="font-serif" style={{
+          fontSize: 17, fontWeight: 700, color: floatLeftPence < 0 ? 'var(--warning)' : 'var(--caramel-ink)',
+          fontVariantNumeric: 'tabular-nums', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        }}>
+          {fmtPenceGrouped(floatLeftPence)}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function MoneyField({ label, value, onChange, placeholder, big }) {
+  return (
+    <div className="form-group" style={{ marginBottom: 0, minWidth: 0 }}>
+      <label>{label}</label>
+      <input
+        type="text"
+        inputMode="decimal"
+        value={value}
+        onChange={e => onChange(e.target.value.replace(/[^0-9.]/g, ''))}
+        placeholder={placeholder}
+        style={big ? { height: 48, fontSize: 16 } : undefined}
+      />
+    </div>
+  );
+}
+
+function MobileCashClose(props) {
+  const {
+    coins, noteDenoms, coinRows, noteCounts,
+    setCoinRow, setNoteCount,
+    breakdown, notes, setNotes,
+    expectedFloatInput, setExpectedFloatInput,
+    cashTakenInput, setCashTakenInput,
+    cashRemovedInput, setCashRemovedInput,
+    cardSalesInput, setCardSalesInput,
+    expectedFloatPence, cashTakenPence, cashRemovedPence, cardSalesPence,
+    closedByName, setClosedByName,
+    saving, onSave, onReset,
+    openKey, setOpenKey,
+    tab, setTab,
+    recent, loadingRecent, canDelete, onDeleteClosing, onTillRoll,
+  } = props;
+
+  const m = cashCloseModel({
+    coins, noteDenoms, coinRows, noteCounts, breakdown,
+    expectedFloatPence, cashTakenPence, cashRemovedPence, cardSalesPence,
+  });
+  const {
+    rows, noteTiles, coinWells, countedPence, floatLeftPence,
+    canCheckFloat, floatVariancePence, floatBalanced,
+    totalSalesPence, hasSplit, splitBands,
+  } = m;
+
+  const openIdx = rows.findIndex(r => r.key === openKey);
+  const openRow = openIdx >= 0 ? rows[openIdx] : null;
+  const nextRow = openIdx >= 0 && openIdx < rows.length - 1 ? rows[openIdx + 1] : null;
+
+  return (
+    <div className="mobile-only">
+      {tab === 'history' ? (
+        <>
+          <button onClick={() => setTab('count')} className="btn btn-ghost" style={{ minHeight: 44, marginBottom: 12 }}>
+            <ChevronLeft size={16} /> Back to the count
+          </button>
+          <div className="card" style={{ padding: '13px 13px 14px', marginBottom: 16 }}>
+            <PeriodPicker {...props} />
+          </div>
+
+          <div style={{ ...SECTION_LABEL, marginBottom: 9, padding: '0 2px' }}>
+            {recent.length
+              ? `${recent.length} saved closing${recent.length === 1 ? '' : 's'}`
+              : 'Nothing saved yet'}
+          </div>
+          <MobileClosingHistory
+            recent={recent}
+            loading={loadingRecent}
+            canDelete={canDelete}
+            onDelete={onDeleteClosing}
+            onTillRoll={onTillRoll}
+          />
+        </>
+      ) : (
+      <>
+      <div style={{ marginBottom: 16 }}>
+        <FloatVerdict m={m} rowCount={rows.length} />
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 9, padding: '0 2px' }}>
+        <span style={SECTION_LABEL}>The drawer</span>
+        <span style={{ marginLeft: 'auto', fontSize: 11.5, color: 'var(--text-mid)' }}>tap a slot to count it</span>
+      </div>
+      <DrawerTray noteTiles={noteTiles} coinWells={coinWells} setOpenKey={setOpenKey} />
+
+      <div style={{ display: 'flex', gap: 10, marginBottom: 18, padding: '0 2px', fontSize: 11, color: 'var(--text-mid)' }}>
+        <span style={{ minWidth: 0 }}>Top row: notes, biggest first</span>
+        <span style={{ marginLeft: 'auto', minWidth: 0, textAlign: 'right' }}>Ring = progress to the next bag</span>
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 9, padding: '0 2px' }}>
+        <span style={SECTION_LABEL}>The close</span>
+        <span style={{ marginLeft: 'auto', fontSize: 11.5, color: 'var(--text-mid)' }}>from the printout</span>
+      </div>
+      <div className="card" style={{ padding: '13px 13px 14px', marginBottom: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+          <MoneyField big label="Cash sales (£)" value={cashTakenInput} onChange={setCashTakenInput} placeholder="0.00" />
+          <MoneyField big label="Card sales (£)" value={cardSalesInput} onChange={setCardSalesInput} placeholder="optional" />
+          <MoneyField big label="Cash lifted (£)" value={cashRemovedInput} onChange={setCashRemovedInput} placeholder="0.00" />
+          <FloatLeftCell floatLeftPence={floatLeftPence} height={48} />
+          <MoneyField big label="Expected float (£)" value={expectedFloatInput} onChange={setExpectedFloatInput} placeholder="e.g. 150" />
+        </div>
+
+        <p style={{ fontSize: 11.5, color: 'var(--text-mid)', marginTop: 10, lineHeight: 1.45 }}>
+          Cash lifted follows the cash sales figure until you change
+          it. Round it however you like — the difference stays in the
+          drawer, and float left is what's counted less what's lifted.
+          The expected float is remembered for next time.
+        </p>
+
+        {hasSplit && <SplitBar splitBands={splitBands} totalSalesPence={totalSalesPence} />}
+      </div>
+
+      <div className="form-group">
+        <label>Closed by</label>
+        <input
+          type="text"
+          value={closedByName}
+          onChange={e => setClosedByName(e.target.value)}
+          placeholder="Your name"
+          autoComplete="name"
+          style={{ height: 48, fontSize: 16 }}
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Anything to flag</label>
+        <textarea
+          value={notes}
+          onChange={e => setNotes(e.target.value)}
+          placeholder="e.g. short by £2, found £5 under the till"
+          style={{ minHeight: 66, fontSize: 16 }}
+        />
+      </div>
+
+      <button onClick={onReset} className="btn btn-ghost w-full" style={{ minHeight: 48, marginBottom: 10 }}>
+        Reset the count
+      </button>
+
+      <button onClick={() => setTab('history')} className="btn btn-secondary w-full" style={{ minHeight: 48, marginBottom: 12 }}>
+        <History size={15} />
+        {recent.length ? `Past closings (${recent.length})` : 'Past closings'}
+      </button>
+
+      <div style={{
+        position: 'fixed', left: 0, right: 0,
+        bottom: 0, zIndex: 40,
+        display: 'flex', alignItems: 'center', gap: 10,
+        padding: '10px 14px calc(10px + env(safe-area-inset-bottom, 0px))',
+        background: breakdown.totalPence > 0 ? 'var(--parchment)' : 'var(--card-bg)',
+        borderTop: `1px solid ${breakdown.totalPence > 0 ? 'var(--caramel)' : 'var(--border)'}`,
+        boxShadow: '0 -4px 16px rgba(30,20,10,0.10)',
+      }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{
+            fontSize: 15, fontWeight: 700, fontVariantNumeric: 'tabular-nums',
+            color: !canCheckFloat ? 'var(--text-dark)' : floatBalanced ? 'var(--success)' : 'var(--warning)',
+          }}>
+            {!canCheckFloat ? fmtPenceShort(countedPence)
+              : floatBalanced ? 'Float spot on'
+              : `${fmtPenceShort(Math.abs(floatVariancePence))} ${floatVariancePence < 0 ? 'short' : 'over'}`}
+          </div>
+          <div style={{ fontSize: 11.5, color: 'var(--text-mid)', marginTop: 1 }}>
+            {countedPence > 0
+              ? `counted ${fmtPenceShort(countedPence)} · float left ${fmtPenceShort(floatLeftPence)}`
+              : 'Nothing counted yet'}
+          </div>
+        </div>
+        <button
+          onClick={onSave}
+          disabled={saving || breakdown.totalPence <= 0}
+          className="btn btn-primary"
+          style={{ minHeight: 48, flexShrink: 0 }}
+        >
+          {saving ? 'Saving…' : 'Close the till'}
+        </button>
+      </div>
+
+      {openRow && (
+        <CashEntrySheet
+          key={openRow.key}
+          denom={openRow}
+          isNote={openRow.isNote}
+          row={{ src: openRow.src, input: openRow.input }}
+          nextLabel={nextRow?.label}
+          onChange={(key, src, input) => {
+            if (openRow.isNote) setNoteCount(key, String(entryToCount(src, input, openRow) || ''));
+            else setCoinRow(key, src, input);
+          }}
+          onNext={nextRow ? () => setOpenKey(nextRow.key) : null}
+          onClose={() => setOpenKey(null)}
+        />
+      )}
+      </>
+      )}
+    </div>
+  );
+}
+
+// ── Shared close model ────────────────────────────────────────
+// One function behind both views, so a denomination cannot be worth
+// one thing on a phone and another on a desktop.
+function cashCloseModel({
+  coins, noteDenoms, coinRows, noteCounts, breakdown,
+  expectedFloatPence, cashTakenPence, cashRemovedPence, cardSalesPence,
+}) {
+  const rows = [
+    ...noteDenoms.map(n => {
+      const count = Math.max(0, parseInt(noteCounts[n.key], 10) || 0);
+      return {
+        // `pence` stays the denomination's UNIT value; the row's
+        // total is `rowPence`.
+        ...n, isNote: true, count, rowPence: count * n.pence,
+        src: 'count', input: noteCounts[n.key] || '',
+        entry: count ? `${count} × ${n.label}` : '',
+      };
+    }),
+    ...coins.map(c => {
+      const r = coinRows[c.key] || {};
+      const count = entryToCount(r.src, r.input, c);
+      const entry = !count ? ''
+        : r.src === 'weight' ? `${r.input} g`
+        : r.src === 'value' ? `£${r.input}`
+        : `${count} × ${c.label}`;
+      return { ...c, isNote: false, count, rowPence: count * c.pence, src: r.src, input: r.input || '', entry };
+    }),
+  ];
+
+  const entered = rows.filter(r => r.count > 0).length;
+
+  const countedPence = breakdown.totalPence;
+  const floatLeftPence = countedPence - cashRemovedPence;
+
+  //   float — the float left against the float that should be there.
+  //   lift  — today's rounding alone: printout against what was lifted.
+  const hasExpected = expectedFloatPence > 0;
+  const canCheckFloat = countedPence > 0 && hasExpected;
+  const floatVariancePence = canCheckFloat ? floatLeftPence - expectedFloatPence : 0;
+  const floatBalanced = canCheckFloat && floatVariancePence === 0;
+  const liftVariancePence = cashTakenPence - cashRemovedPence;
+  const canCheckLift = countedPence > 0 && cashTakenPence > 0;
+
+  // Half the bar is 20 pounds out; beyond that it just pins.
+  const varianceSpan = Math.min(50, (Math.abs(floatVariancePence) / 2000) * 50);
+
+  const totalSalesPence = cashTakenPence + cardSalesPence;
+  const hasSplit = totalSalesPence > 0;
+  const splitBands = hasSplit ? [
+    { key: 'cash', label: 'Cash sales', short: 'Cash', pence: cashTakenPence, fill: 'var(--caramel)', fg: 'var(--text-dark)' },
+    { key: 'card', label: 'Card sales', short: 'Card', pence: cardSalesPence, fill: 'var(--roast)',   fg: 'var(--tan)' },
+  ].filter(s => s.pence > 0).map(s => ({ ...s, pct: (s.pence / totalSalesPence) * 100 })) : [];
+
+  return {
+    rows, entered,
+    noteTiles: rows.filter(r => r.isNote),
+    coinWells: rows.filter(r => !r.isNote),
+    countedPence, floatLeftPence, hasExpected, canCheckFloat,
+    floatVariancePence, floatBalanced, liftVariancePence, canCheckLift,
+    varianceSpan, totalSalesPence, hasSplit, splitBands,
+    cashRemovedPence, expectedFloatPence, cashTakenPence, cardSalesPence,
+  };
+}
+
+// ── The verdict panel ─────────────────────────────────────────
+function FloatVerdict({ m, rowCount, big }) {
+  const {
+    countedPence, floatLeftPence, cashRemovedPence, entered,
+    canCheckFloat, hasExpected, floatVariancePence, floatBalanced,
+    varianceSpan, canCheckLift, liftVariancePence, expectedFloatPence,
+  } = m;
+  return (
+    <div style={{ background: 'var(--roast)', borderRadius: 'var(--radius-lg)', padding: big ? '17px 18px' : '15px 16px' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.07em', color: 'var(--tan)' }}>
+            FLOAT LEFT IN THE DRAWER
+          </div>
+          <div className="font-serif" style={{
+            fontSize: big ? 32 : 29, fontWeight: 700, color: 'var(--parchment)',
+            lineHeight: 1.1, marginTop: 3, fontVariantNumeric: 'tabular-nums',
+          }}>
+            {fmtPenceGrouped(floatLeftPence)}
+          </div>
+        </div>
+        <div style={{ fontSize: 11.5, color: 'var(--tan)', flexShrink: 0, textAlign: 'right', paddingBottom: 3 }}>
+          <div>{fmtPenceGrouped(countedPence)} counted</div>
+          <div style={{ marginTop: 2 }}>− {fmtPenceGrouped(cashRemovedPence)} lifted</div>
+        </div>
+      </div>
+
+      {canCheckFloat ? (
+        <>
+          {/* Centre-zero bar: left is short of the float, right is over. */}
+          <div style={{ position: 'relative', height: 8, marginTop: 13 }}>
+            <div style={{ position: 'absolute', inset: 0, borderRadius: 99, background: 'rgba(210,180,140,0.25)' }} />
+            <div style={{
+              position: 'absolute', top: -3, bottom: -3, left: '50%', width: 2,
+              marginLeft: -1, borderRadius: 99, background: 'rgba(245,236,215,0.55)',
+            }} />
+            <div style={{
+              position: 'absolute', top: 0, bottom: 0, borderRadius: 99,
+              background: floatBalanced ? ON_ROAST_OK : ON_ROAST_WARN,
+              left:  floatVariancePence < 0 ? `${50 - varianceSpan}%` : '50%',
+              width: `${varianceSpan}%`,
+              transition: `left var(--t-slow) var(--ease-out), width var(--t-slow) var(--ease-out)`,
+            }} />
+          </div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginTop: 11 }}>
+            <div className="font-serif" style={{
+              flex: 1, minWidth: 0, fontSize: 21, fontWeight: 700, lineHeight: 1.1,
+              color: floatBalanced ? ON_ROAST_OK : ON_ROAST_WARN,
+            }}>
+              {floatBalanced
+                ? 'Float is spot on'
+                : `${fmtPenceGrouped(Math.abs(floatVariancePence))} ${floatVariancePence < 0 ? 'short' : 'over'}`}
+            </div>
+            <div style={{ fontSize: 11.5, color: 'var(--tan)', flexShrink: 0 }}>
+              {entered} of {rowCount} counted
+            </div>
+          </div>
+          <div style={{ fontSize: 11.5, color: 'var(--tan)', marginTop: 5, lineHeight: 1.45 }}>
+            against the {fmtPenceGrouped(expectedFloatPence)} float the drawer should carry
+          </div>
+        </>
+      ) : (
+        <div style={{ fontSize: 12, color: 'var(--tan)', marginTop: 11, lineHeight: 1.45 }}>
+          {entered} of {rowCount} counted
+          {countedPence > 0 && !hasExpected
+            ? ' · set an expected float and this will tell you whether the drawer is straight.'
+            : ''}
+        </div>
+      )}
+
+      {canCheckLift && liftVariancePence !== 0 && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 8, marginTop: 12,
+          paddingTop: 11, borderTop: '1px solid rgba(210,180,140,0.25)',
+          fontSize: 12, lineHeight: 1.4,
+          color: liftVariancePence > 0 ? ON_ROAST_OK : ON_ROAST_WARN,
+        }}>
+          <span style={{ flex: 1, minWidth: 0 }}>
+            {liftVariancePence > 0
+              ? `${fmtPenceGrouped(liftVariancePence)} of today's cash stayed in the drawer`
+              : `${fmtPenceGrouped(Math.abs(liftVariancePence))} more came out than the day took`}
+          </span>
+          <span style={{ flexShrink: 0, fontSize: 13, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>
+            {liftVariancePence > 0 ? '+' : '−'}{fmtPenceGrouped(Math.abs(liftVariancePence))}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Desktop Cash Closing (≥ 769px) ────────────────────────────
+// The same drawer the phone shows, opened out, with the verdict and
+// the Close button in a rail that stays put while the count scrolls.
+function DesktopCashClose(props) {
+  const {
+    coins, noteDenoms, coinRows, noteCounts,
+    setCoinRow, setNoteCount,
+    breakdown, notes, setNotes,
+    expectedFloatInput, setExpectedFloatInput,
+    cashTakenInput, setCashTakenInput,
+    cashRemovedInput, setCashRemovedInput,
+    cardSalesInput, setCardSalesInput,
+    expectedFloatPence, cashTakenPence, cashRemovedPence, cardSalesPence,
+    saving, onSave, onReset, onExportPdf, closedByName, setClosedByName,
+    openKey, setOpenKey,
+    recent, loadingRecent, canDelete, onDeleteClosing, onTillRoll,
+  } = props;
+
+  const m = cashCloseModel({
+    coins, noteDenoms, coinRows, noteCounts, breakdown,
+    expectedFloatPence, cashTakenPence, cashRemovedPence, cardSalesPence,
+  });
+  const { rows, entered, noteTiles, coinWells, countedPence, floatLeftPence, totalSalesPence, hasSplit, splitBands } = m;
+
+  const openIdx = rows.findIndex(r => r.key === openKey);
+  const openRow = openIdx >= 0 ? rows[openIdx] : null;
+  const nextRow = openIdx >= 0 && openIdx < rows.length - 1 ? rows[openIdx + 1] : null;
+
+  return (
+    <div className="desktop-only">
+      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 16, flexWrap: 'wrap', marginBottom: 18 }}>
+        <div style={{ flex: 1, minWidth: 260 }}>
+          <h2 className="font-serif" style={{
+            fontSize: 24, color: 'var(--text-dark)', marginBottom: 4,
+            display: 'flex', alignItems: 'center', gap: 10,
+          }}>
+            <Calculator size={22} color="var(--caramel)" />
+            Cash Closing
+          </h2>
+          <p style={{ fontSize: 13.5, color: 'var(--text-mid)' }}>
+            Count the drawer slot by slot, then read the day's printout into the close. Stamped when you save.
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+          <button className="btn btn-secondary" onClick={onExportPdf} disabled={countedPence <= 0}>
+            <FileDown size={14} /> Export PDF
+          </button>
+          <button className="btn btn-ghost" onClick={onReset}>
+            <RotateCcw size={14} /> Reset
+          </button>
+        </div>
+      </div>
+
+      <div className="dk-split">
+        <div style={{ minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 9, padding: '0 2px' }}>
+            <span style={SECTION_LABEL}>The drawer</span>
+            <span style={{ marginLeft: 'auto', fontSize: 11.5, color: 'var(--text-mid)' }}>click a slot to count it</span>
+          </div>
+
+          <DrawerTray big noteTiles={noteTiles} coinWells={coinWells} setOpenKey={setOpenKey} />
+
+          <div style={{ display: 'flex', gap: 10, marginBottom: 18, padding: '0 2px', fontSize: 11, color: 'var(--text-mid)' }}>
+            <span style={{ minWidth: 0 }}>Top row: notes, biggest first</span>
+            <span style={{ marginLeft: 'auto', minWidth: 0, textAlign: 'right' }}>Ring = progress to the next bank bag</span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 9, padding: '0 2px' }}>
+            <span style={SECTION_LABEL}>The close</span>
+            <span style={{ marginLeft: 'auto', fontSize: 11.5, color: 'var(--text-mid)' }}>from the day's printout</span>
+          </div>
+          <div className="card" style={{ padding: '15px 15px 16px', marginBottom: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(146px, 1fr))', gap: 12 }}>
+              <MoneyField label="Cash sales (£)" value={cashTakenInput} onChange={setCashTakenInput} placeholder="0.00" />
+              <MoneyField label="Card sales (£)" value={cardSalesInput} onChange={setCardSalesInput} placeholder="optional" />
+              <MoneyField label="Cash lifted (£)" value={cashRemovedInput} onChange={setCashRemovedInput} placeholder="0.00" />
+              <MoneyField label="Expected float (£)" value={expectedFloatInput} onChange={setExpectedFloatInput} placeholder="e.g. 150" />
+              <FloatLeftCell floatLeftPence={floatLeftPence} height={42} />
+            </div>
+
+            <p style={{ fontSize: 11.5, color: 'var(--text-mid)', marginTop: 11, lineHeight: 1.45 }}>
+              Cash lifted follows the cash sales figure until you change it. Round it however you
+              like — the difference stays in the drawer, and float left is what's counted less
+              what's lifted. The expected float is remembered for next time.
+            </p>
+
+            {hasSplit && <SplitBar big splitBands={splitBands} totalSalesPence={totalSalesPence} />}
+          </div>
+
+          <div className="card" style={{ padding: '15px 15px 16px', marginBottom: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,2fr)', gap: 12 }}>
+              <div className="form-group" style={{ marginBottom: 12 }}>
+                <label>Closed by</label>
+                <input
+                  type="text"
+                  value={closedByName}
+                  onChange={e => setClosedByName(e.target.value)}
+                  placeholder="Your name"
+                  autoComplete="name"
+                />
+              </div>
+              <div className="form-group" style={{ marginBottom: 12 }}>
+                <label>Anything to flag</label>
+                <textarea
+                  value={notes}
+                  onChange={e => setNotes(e.target.value)}
+                  placeholder="e.g. short by £2, found £5 under the till"
+                  style={{ minHeight: 42 }}
+                  rows={1}
+                />
+              </div>
+            </div>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap',
+              fontSize: 12, color: 'var(--text-mid)',
+              paddingTop: 12, borderTop: '1px solid var(--border)',
+            }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <UserIcon size={13} color="var(--caramel)" />
+                Closed by <strong style={{ color: 'var(--text-dark)' }}>{closedByName.trim() || 'Unknown'}</strong>
+              </span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <Clock size={13} color="var(--caramel)" />
+                Time stamped when you close the till
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <aside className="dk-rail" style={{ minWidth: 0 }}>
+          <FloatVerdict m={m} rowCount={rows.length} big />
+
+          <button
+            onClick={onSave}
+            disabled={saving || countedPence <= 0}
+            className="btn btn-primary w-full"
+            style={{ minHeight: 48, marginTop: 12 }}
+          >
+            <Save size={15} /> {saving ? 'Saving…' : 'Close the till'}
+          </button>
+          <div style={{ fontSize: 11.5, color: 'var(--text-mid)', marginTop: 8, textAlign: 'center', lineHeight: 1.45 }}>
+            {countedPence > 0
+              ? `${entered} of ${rows.length} slots counted · ${fmtPenceGrouped(countedPence)} in the drawer`
+              : 'Count at least one slot before closing'}
+          </div>
+
+          <div className="card" style={{ padding: '13px 13px 14px', marginTop: 18 }}>
+            <PeriodPicker {...props} compact />
+          </div>
+        </aside>
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, margin: '22px 0 9px', padding: '0 2px' }}>
+        <span style={SECTION_LABEL}>Past closings</span>
+        <span style={{ marginLeft: 'auto', fontSize: 11.5, color: 'var(--text-mid)' }}>
+          {recent.length ? `${recent.length} saved closing${recent.length === 1 ? '' : 's'}` : 'nothing saved yet'}
+        </span>
+      </div>
+
+      {loadingRecent ? (
+        <div className="loading-center" style={{ padding: 24 }}>
+          <div className="spinner" />
+          <p>Loading…</p>
+        </div>
+      ) : recent.length === 0 ? (
+        <div className="card empty-state">
+          <Calculator size={36} color="var(--text-muted)" />
+          <h4>No closings yet</h4>
+          <p>Count the drawer above and close the till — it'll show up here.</p>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {recent.map(r => (
+            <ClosingHistoryRow
+              key={r.id}
+              row={r}
+              canDelete={canDelete}
+              onDelete={() => onDeleteClosing(r.id)}
+              onTillRoll={r.count_basis === 'reconciled' ? () => onTillRoll(r) : null}
+            />
+          ))}
+        </div>
+      )}
+
+      {openRow && (
+        <CashEntrySheet
+          key={openRow.key}
+          variant="dialog"
+          denom={openRow}
+          isNote={openRow.isNote}
+          row={{ src: openRow.src, input: openRow.input }}
+          nextLabel={nextRow?.label}
+          onChange={(key, src, input) => {
+            if (openRow.isNote) setNoteCount(key, String(entryToCount(src, input, openRow) || ''));
+            else setCoinRow(key, src, input);
+          }}
+          onNext={nextRow ? () => setOpenKey(nextRow.key) : null}
+          onClose={() => setOpenKey(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+// ─── Closing history row (desktop) ───────────────────────────
+function ClosingHistoryRow({ row, canDelete, onDelete, onTillRoll }) {
+  const [expanded, setExpanded] = useState(false);
+  const date = new Date(row.closed_at);
+  const reconciled = row.count_basis === 'reconciled';
+  const variance = reconciled && (row.opening_float_pence || 0) > 0
+    ? (row.total_pence || 0) - (row.cash_removed_pence || 0) - row.opening_float_pence
+    : null;
+  return (
+    <div className="card" style={{ overflow: 'hidden' }}>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <button
+          onClick={() => setExpanded(e => !e)}
+          aria-expanded={expanded}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 12,
+            padding: '12px 8px 12px 16px', flex: 1, minWidth: 0,
+            background: 'transparent', border: 'none', cursor: 'pointer',
+            fontFamily: 'inherit', textAlign: 'left',
+          }}
+        >
+          <div style={{
+            width: 36, height: 36, borderRadius: 9, flexShrink: 0,
+            background: 'rgba(196,149,42,0.12)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <Calculator size={16} color="var(--caramel)" />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-dark)', display: 'flex', gap: 10, alignItems: 'baseline' }}>
+              {fmtPence(row.total_pence)}
+              {variance !== null && (
+                <span style={{ fontSize: 12, fontWeight: 700, color: variance === 0 ? 'var(--success)' : 'var(--warning)' }}>
+                  {variance === 0 ? 'Balanced' : `${fmtPence(Math.abs(variance))} ${variance < 0 ? 'short' : 'over'}`}
+                </span>
+              )}
+            </div>
+            <div style={{ fontSize: 11.5, color: 'var(--text-muted)', marginTop: 2 }}>
+              {format(date, 'EEE d MMM yyyy, HH:mm')}
+              {' · by '}
+              {row.closed_by_name || 'Unknown'}
+              {' · '}
+              {formatDistanceToNow(date, { addSuffix: true })}
+            </div>
+          </div>
+        </button>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, flexShrink: 0, paddingRight: 12 }}>
+          {onTillRoll && (
+            <button onClick={onTillRoll} aria-label="Till roll" title="Till roll" className="btn-icon">
+              <Receipt size={14} />
+            </button>
+          )}
+          {canDelete && (
+            <button onClick={onDelete} aria-label="Delete closing" title="Delete" className="btn-icon" style={{ color: 'var(--danger)' }}>
+              <Trash2 size={14} />
+            </button>
+          )}
+        </span>
+      </div>
+      {expanded && (
+        <div style={{
+          padding: '0 16px 14px 64px', fontSize: 12.5, color: 'var(--text-mid)',
+          display: 'flex', flexDirection: 'column', gap: 4,
+        }}>
+          {reconciled && (
+            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 6 }}>
+              <span>Cash {fmtPenceShort(row.cash_taken_pence || 0)}</span>
+              <span>Card {fmtPenceShort(row.card_sales_pence || 0)}</span>
+              <span>Lifted {fmtPenceShort(row.cash_removed_pence || 0)}</span>
+              <span>Left {fmtPenceShort((row.total_pence || 0) - (row.cash_removed_pence || 0))}</span>
+              <span>Float {fmtPenceShort(row.opening_float_pence || 0)}</span>
+            </div>
+          )}
+          {[...NOTES, ...COINS].filter(d => row[d.key] > 0).map(d => (
+            <div key={d.key} style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>{d.label} × {row[d.key]}</span>
+              <span style={{ fontWeight: 600 }}>{fmtPence(row[d.key] * d.pence)}</span>
+            </div>
+          ))}
+          {row.notes && (
+            <div style={{
+              marginTop: 6, padding: '6px 10px', borderRadius: 6,
+              background: 'var(--parchment)', fontStyle: 'italic', color: 'var(--text-muted)',
+            }}>
+              "{row.notes}"
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── The page ─────────────────────────────────────────────────
+function CashClosingPage() {
+  const businessName = BUSINESS_NAME;
+
+  // Per-coin entry: { src: 'weight' | 'count' | 'value' | null, input }.
+  const [coinRows, setCoinRows] = useState(
+    () => Object.fromEntries(COINS.map(c => [c.key, { src: null, input: '' }]))
+  );
+  const [noteCounts, setNoteCounts] = useState(
+    () => Object.fromEntries(NOTES.map(n => [n.key, '']))
+  );
+  const [notes, setNotes] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [mOpenKey, setMOpenKey] = useState(null);
+  const [dOpenKey, setDOpenKey] = useState(null);
+  const [mTab, setMTab] = useState('count');
+  const [tillRoll, setTillRoll] = useState(null);
+
+  const [periodFrom, setPeriodFrom] = useState(() => format(subDays(new Date(), 13), 'yyyy-MM-dd'));
+  const [periodTo, setPeriodTo] = useState(() => format(new Date(), 'yyyy-MM-dd'));
+  const [periodRows, setPeriodRows] = useState(null);
+  const [periodLoading, setPeriodLoading] = useState(false);
+
+  // Remembered on this device: who usually closes, and the float the
+  // drawer is supposed to carry (the yardstick, not something counted).
+  const [closedByName, setClosedByNameState] = useState(() => loadSettings().closedBy || '');
+  const [expectedFloatInput, setExpectedFloatState] = useState(() => {
+    const f = loadSettings().standardFloat;
+    return f ? String(f) : '';
+  });
+  function setClosedByName(v) { setClosedByNameState(v); saveSetting('closedBy', v); }
+  function setExpectedFloatInput(v) { setExpectedFloatState(v); saveSetting('standardFloat', v); }
+
+  // The close: print the day's sales, read the cash taken off the
+  // summary, lift that cash out, count what's left, close. The
+  // printout and the count are independent sources — which is the
+  // only reason a close can come out over or short.
+  const [cashTakenInput,    setCashTakenInput]    = useState('');
+  const [cashRemovedInput,  setCashRemovedInput]  = useState('');
+  const [cardSalesInput,    setCardSalesInput]    = useState('');
+
+  const toPence = s => Math.max(0, Math.round((Number(s) || 0) * 100));
+  const expectedFloatPence = toPence(expectedFloatInput);
+  const cashTakenPence     = toPence(cashTakenInput);
+  const cashRemovedPence   = toPence(cashRemovedInput);
+  const cardSalesPence     = toPence(cardSalesInput);
+
+  // Cash lifted follows the printout until someone edits it.
+  const removedTouched = useRef(false);
+  useEffect(() => {
+    if (!removedTouched.current) setCashRemovedInput(cashTakenInput);
+  }, [cashTakenInput]);
+  const setCashRemovedTouched = val => { removedTouched.current = true; setCashRemovedInput(val); };
+
+  function setCoinRow(key, src, input) {
+    setCoinRows(prev => ({ ...prev, [key]: { src, input } }));
+  }
+  const setNoteCount = (key, val) => setNoteCounts(prev => ({ ...prev, [key]: val }));
+
+  const breakdown = useMemo(() => {
+    const coinRowsData = COINS.map(c => {
+      const { src, input } = coinRows[c.key] || {};
+      const count = entryToCount(src, input, c);
+      const grams = count > 0 ? Math.round(count * c.weightG * 100) / 100 : 0;
+      return { ...c, src, input, count, grams, pence: count * c.pence };
+    });
+    const noteRowsData = NOTES.map(n => {
+      const count = Math.max(0, parseInt(noteCounts[n.key], 10) || 0);
+      return { ...n, count, pence: count * n.pence };
+    });
+    const coinsPence = coinRowsData.reduce((s, r) => s + r.pence, 0);
+    const notesPence = noteRowsData.reduce((s, r) => s + r.pence, 0);
+    const totalItems = coinRowsData.reduce((s, r) => s + r.count, 0) + noteRowsData.reduce((s, r) => s + r.count, 0);
+    return { coinRows: coinRowsData, noteRows: noteRowsData, coinsPence, notesPence, totalPence: coinsPence + notesPence, totalItems };
+  }, [coinRows, noteCounts]);
+
+  // ── History (this browser) ────────────────────────────────
+  const [allClosings, setAllClosings] = useState([]);
+  const [loadingRecent, setLoadingRecent] = useState(true);
+  useEffect(() => { setAllClosings(loadClosings()); setLoadingRecent(false); }, []);
+  const recent = useMemo(
+    () => [...allClosings].sort((a, b) => new Date(b.closed_at) - new Date(a.closed_at)).slice(0, 20),
+    [allClosings],
+  );
+
+  function openPeriod() {
+    setPeriodLoading(true);
+    const data = allClosings.filter(r => {
+      const d = format(new Date(r.closed_at), 'yyyy-MM-dd');
+      return d >= periodFrom && d <= periodTo;
+    }).sort((a, b) => new Date(a.closed_at) - new Date(b.closed_at));
+    setPeriodLoading(false);
+    if (periodFrom > periodTo) { toast.warning('The start date is after the end date.'); return; }
+    if (data.length === 0) { toast.warning('No closes saved in that range.'); return; }
+    setPeriodRows(data);
+    track('cash-report', 'Opened a cash report');
+  }
+
+  function save() {
+    if (breakdown.totalPence <= 0) {
+      toast.warning('Count at least one note or coin before closing.');
+      return;
+    }
+    setSaving(true);
+    const payload = {
+      id:                  newId(),
+      closed_by_name:      closedByName.trim() || null,
+      closed_at:           new Date().toISOString(),
+      notes:               notes.trim() || null,
+      coins_pence:         breakdown.coinsPence,
+      notes_pence:         breakdown.notesPence,
+      total_pence:         breakdown.totalPence,
+      opening_float_pence: expectedFloatPence,
+      cash_taken_pence:    cashTakenPence,
+      cash_removed_pence:  cashRemovedPence,
+      card_sales_pence:    cardSalesPence,
+      count_basis:         'reconciled',
+    };
+    breakdown.coinRows.forEach(r => { payload[r.key] = r.count; });
+    breakdown.noteRows.forEach(r => { payload[r.key] = r.count; });
+
+    const next = [payload, ...allClosings].slice(0, 1000);
+    const ok = saveClosings(next);
+    setSaving(false);
+    if (!ok) {
+      toast.error("Couldn't save — this browser is blocking storage (private window?).");
+      return;
+    }
+    setAllClosings(next);
+    track('close-till', 'Closed the till');
+    toast.success(`Closing saved · float left ${fmtPence(breakdown.totalPence - cashRemovedPence)}`);
+    reset();
+    setTillRoll(payload);
+  }
+
+  function reset() {
+    setCoinRows(Object.fromEntries(COINS.map(c => [c.key, { src: null, input: '' }])));
+    setNoteCounts(Object.fromEntries(NOTES.map(n => [n.key, ''])));
+    setNotes('');
+    setCashTakenInput('');
+    setCashRemovedInput('');
+    setCardSalesInput('');
+    removedTouched.current = false;
+    // Expected float and name survive a reset — they're not counted.
+  }
+
+  function deleteClosing(id) {
+    if (!window.confirm('Delete this cash closing? This is permanent.')) return;
+    const next = allClosings.filter(r => r.id !== id);
+    if (!saveClosings(next)) { toast.error("Couldn't delete — storage is blocked."); return; }
+    setAllClosings(next);
+    toast.success('Closing deleted');
+  }
+
+  // ── Till roll / report as PDF ──────────────────────────────
+  // html2canvas photographs the rendered slip and the image becomes a
+  // page cut to its own proportions, so the PDF IS the slip on screen.
+  const [rollBusy, setRollBusy] = useState(false);
+
+  async function captureShare(node, name, summary, mode = 'share') {
+    if (!node) return;
+    if (!window.html2canvas || !window.jspdf) { toast.error('PDF tools did not load — check your connection.'); return; }
+    setRollBusy(true);
+    try {
+      const canvas = await window.html2canvas(node, {
+        backgroundColor: null,
+        scale: Math.min(3, window.devicePixelRatio * 2 || 2),
+        useCORS: true,
+        logging: false,
+      });
+      const wMm = 80;
+      const hMm = (canvas.height / canvas.width) * wMm;
+      const doc = new window.jspdf.jsPDF({ unit: 'mm', format: [wMm, hMm], orientation: hMm > wMm ? 'portrait' : 'landscape' });
+      doc.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, wMm, hMm);
+
+      track(mode === 'save' ? 'slip-pdf' : 'slip-share', mode === 'save' ? 'Saved a slip as PDF' : 'Shared a slip');
+      if (mode === 'save') {
+        doc.save(name);
+        toast.success('Saved');
+        setRollBusy(false);
+        return;
+      }
+
+      const outcome = await sharePdf({
+        blob: doc.output('blob'),
+        filename: name,
+        title: 'Till roll',
+        summary,
+        save: n => doc.save(n),
+      });
+      if (outcome === 'saved' && canShareFiles()) {
+        window.open(`https://wa.me/?text=${encodeURIComponent(summary)}`, '_blank', 'noopener');
+        toast.info('Saved the PDF — attach it in WhatsApp, the summary is already in the message.');
+      } else if (outcome === 'saved') {
+        toast.success('Saved');
+      }
+    } catch (e) {
+      toast.error(`Couldn't make the PDF: ${e.message}`);
+    }
+    setRollBusy(false);
+  }
+
+  function tillRollShare(row, node, mode) {
+    const d = new Date(row.closed_at);
+    return captureShare(node, `till-roll-${format(d, 'yyyy-MM-dd-HHmm')}.pdf`, [
+      `Close of day ${format(d, 'EEE d MMM yyyy')}`,
+      `Counted ${fmtPence(row.total_pence || 0)}`,
+      `Lifted ${fmtPence(row.cash_removed_pence || 0)}`,
+      `Float left ${fmtPence((row.total_pence || 0) - (row.cash_removed_pence || 0))}`,
+      `Cash ${fmtPence(row.cash_taken_pence || 0)}`,
+      ...((row.card_sales_pence || 0) > 0 ? [`Card ${fmtPence(row.card_sales_pence)}`] : []),
+    ].join('\n'), mode);
+  }
+
+  function periodRollShare(node, mode) {
+    const lifted = periodRows.reduce((t, r) => t + (r.cash_removed_pence || 0), 0);
+    return captureShare(node, `cash-report-${periodFrom}-to-${periodTo}.pdf`, [
+      `Cash report ${format(parseISO(periodFrom), 'd MMM')} – ${format(parseISO(periodTo), 'd MMM yyyy')}`,
+      `${periodRows.length} close${periodRows.length === 1 ? '' : 's'}`,
+      `Cash lifted ${fmtPence(lifted)}`,
+    ].join('\n'), mode);
+  }
+
+  function exportPdf() {
+    if (breakdown.totalPence <= 0) { toast.warning('Nothing to export — count something first.'); return; }
+    if (!window.jspdf) { toast.error('PDF tools did not load — check your connection.'); return; }
+    const stampLabel = format(new Date(), 'EEE d MMM yyyy · HH:mm');
+    const { doc, autoTable, palette, addFooter } = createBrandedPdf({
+      subtitle: 'CASH CLOSING',
+      meta: [stampLabel],
+      rightMeta: [`Closed by: ${closedByName.trim() || 'Unknown'}`],
+    });
+
+    autoTable({
+      startY: 36,
+      head: [['Coin', 'Weight', 'Count', 'Value']],
+      body: breakdown.coinRows.filter(r => r.count > 0).map(r => [r.label, `${r.grams}g`, String(r.count), fmtPence(r.pence)]),
+      foot: [['', '', 'Coins total', fmtPence(breakdown.coinsPence)]],
+      columnStyles: { 0: { cellWidth: 30 }, 1: { cellWidth: 40, halign: 'center' }, 2: { cellWidth: 40, halign: 'center' }, 3: { halign: 'right' } },
+    });
+
+    autoTable({
+      startY: doc.lastAutoTable.finalY + 6,
+      head: [['Note', 'Quantity', 'Value']],
+      body: breakdown.noteRows.filter(r => r.count > 0).map(r => [r.label, String(r.count), fmtPence(r.pence)]),
+      foot: [['', 'Notes total', fmtPence(breakdown.notesPence)]],
+      columnStyles: { 0: { cellWidth: 30 }, 1: { cellWidth: 50, halign: 'center' }, 2: { halign: 'right' } },
+    });
+
+    let y = doc.lastAutoTable.finalY + 8;
+    if (cashTakenPence > 0 || cardSalesPence > 0 || expectedFloatPence > 0) {
+      const floatLeft = breakdown.totalPence - cashRemovedPence;
+      const body = [
+        ['Cash sales', fmtPence(cashTakenPence)],
+        ...(cardSalesPence > 0 ? [['Card sales', fmtPence(cardSalesPence)]] : []),
+        ['Cash lifted', fmtPence(cashRemovedPence)],
+        ['Float left', fmtPence(floatLeft)],
+        ...(expectedFloatPence > 0 ? [
+          ['Expected float', fmtPence(expectedFloatPence)],
+          [floatLeft === expectedFloatPence ? 'Balanced' : floatLeft > expectedFloatPence ? 'Over' : 'Short',
+           floatLeft === expectedFloatPence ? 'Spot on' : fmtPence(Math.abs(floatLeft - expectedFloatPence))],
+        ] : []),
+      ];
+      autoTable({
+        startY: y,
+        head: [['The close', '']],
+        body,
+        columnStyles: { 0: { cellWidth: 80 }, 1: { halign: 'right' } },
+      });
+      y = doc.lastAutoTable.finalY + 8;
+    }
+
+    doc.setFillColor(...palette.DARK);
+    doc.roundedRect(14, y, 182, 18, 3, 3, 'F');
+    doc.setTextColor(...palette.TAN);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.text('COUNTED IN TILL', 20, y + 11);
+    doc.setFontSize(18);
+    doc.setTextColor(...palette.CREAM);
+    doc.text(fmtPence(breakdown.totalPence), 190, y + 12, { align: 'right' });
+
+    if (notes.trim()) {
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'italic');
+      doc.setTextColor(60, 40, 20);
+      doc.text(doc.splitTextToSize(`Notes: ${notes.trim()}`, 182), 14, y + 26);
+    }
+
+    addFooter();
+    doc.save(`cash-closing-${format(new Date(), 'yyyy-MM-dd-HHmm')}.pdf`);
+    track('export-pdf', 'Exported the A4 PDF');
+    toast.success('PDF exported');
+  }
+
+  const shared = {
+    coins: COINS, noteDenoms: NOTES, coinRows, noteCounts, setCoinRow, setNoteCount,
+    breakdown, notes, setNotes,
+    expectedFloatInput, setExpectedFloatInput,
+    cashTakenInput, setCashTakenInput,
+    cashRemovedInput, setCashRemovedInput: setCashRemovedTouched,
+    cardSalesInput, setCardSalesInput,
+    expectedFloatPence, cashTakenPence, cashRemovedPence, cardSalesPence,
+    closedByName, setClosedByName,
+    saving, onSave: save, onReset: reset,
+    recent, loadingRecent, canDelete: true, onDeleteClosing: deleteClosing, onTillRoll: setTillRoll,
+    periodFrom, setPeriodFrom, periodTo, setPeriodTo, onOpenPeriod: openPeriod, periodLoading,
+  };
+
+  return (
+    <>
+      <header className="app-bar">
+        <Calculator size={18} color="var(--tan)" />
+        <span className="font-serif" style={{ flex: 1, fontSize: 17, fontWeight: 700 }}>Cash Closing</span>
+        <span style={{ fontSize: 11.5, color: 'var(--tan)' }}>{businessName}</span>
+      </header>
+      <div className="page-content" style={{ width: '100%', maxWidth: 1180, margin: '0 auto' }}>
+        {/* Two layouts over one set of state; CSS shows one. */}
+        <MobileCashClose {...shared} openKey={mOpenKey} setOpenKey={setMOpenKey} tab={mTab} setTab={setMTab} />
+        <DesktopCashClose {...shared} onExportPdf={exportPdf} openKey={dOpenKey} setOpenKey={setDOpenKey} />
+
+        {periodRows && (
+          <PeriodRoll
+            rows={periodRows}
+            from={periodFrom}
+            to={periodTo}
+            businessName={businessName}
+            onClose={() => setPeriodRows(null)}
+            onShare={periodRollShare}
+            busy={rollBusy}
+          />
+        )}
+
+        {tillRoll && (
+          <TillRoll
+            row={tillRoll}
+            businessName={businessName}
+            onClose={() => setTillRoll(null)}
+            onShare={tillRollShare}
+            busy={rollBusy}
+          />
+        )}
+      </div>
+      <div className="signature">
+        <a href={PORTFOLIO_URL} target="_blank" rel="noopener">JeJo Barista · Aylesbury</a>
+        <div style={{ marginTop: 3 }}>Cash Closing · saved on this device</div>
+      </div>
+      <ToastHost />
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<CashClosingPage />);
+</script>
+</body>
+</html>
